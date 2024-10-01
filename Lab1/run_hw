@@ -1,0 +1,34 @@
+mv draw draw
+make
+./Lab1 testcase/case0.txt output/output0.txt
+echo "Done"
+./Lab1 testcase/case1.txt output/output1.txt
+echo "Done"
+./Lab1 testcase/case2.txt output/output2.txt
+echo "Done"
+./Lab1 testcase/case3.txt output/output3.txt
+echo "Done"
+./Lab1 testcase/case4.txt output/output4.txt
+echo "Done"
+./Lab1 testcase/case5.txt output/output5.txt
+echo "Done"
+./Lab1 testcase/case6.txt output/output6.txt
+echo "Done"
+./Lab1 testcase/case7.txt output/output7.txt
+echo "Done"
+./Lab1 testcase/case8.txt output/output8.txt
+echo "Done"
+./Lab1 testcase/case9.txt output/output9.txt
+echo "Done"
+./Lab1 testcase/case10.txt output/output10.txt
+echo "Done"
+./Lab1 testcase/caseN0.txt output/outputN0.txt
+echo "Done"
+./Lab1 testcase/caseN1.txt output/outputN1.txt
+echo "Done"
+./Lab1 testcase/caseN2.txt output/outputN2.txt
+echo "Done"
+./Lab1 testcase/caseN3.txt output/outputN3.txt
+echo "Done"
+./Lab1 testcase/caseN4.txt output/outputN4.txt
+echo "Done"

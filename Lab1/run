@@ -1,0 +1,33 @@
+make
+./Lab1 testcase/case0.txt output0.txt
+./draw
+./Lab1 testcase/case1.txt output1.txt
+./draw
+./Lab1 testcase/case2.txt output2.txt
+./draw
+./Lab1 testcase/case3.txt output3.txt
+./draw
+./Lab1 testcase/case4.txt output4.txt
+./draw
+./Lab1 testcase/case5.txt output5.txt
+./draw
+./Lab1 testcase/case6.txt output6.txt
+./draw
+./Lab1 testcase/case7.txt output7.txt
+./draw
+./Lab1 testcase/case8.txt output8.txt
+./draw
+./Lab1 testcase/case9.txt output9.txt
+./draw
+./Lab1 testcase/case10.txt output10.txt
+./draw
+./Lab1 testcase/caseN0.txt outputN0.txt
+./draw
+./Lab1 testcase/caseN1.txt outputN1.txt
+./draw
+./Lab1 testcase/caseN2.txt outputN2.txt
+./draw
+./Lab1 testcase/caseN3.txt outputN3.txt
+./draw
+./Lab1 testcase/caseN4.txt outputN4.txt
+./draw

@@ -1,0 +1,16 @@
+diff answer/output0.txt output/output0.txt
+diff answer/output1.txt output/output1.txt
+diff answer/output2.txt output/output2.txt
+diff answer/output3.txt output/output3.txt
+diff answer/output4.txt output/output4.txt
+diff answer/output5.txt output/output5.txt
+diff answer/output6.txt output/output6.txt
+diff answer/output7.txt output/output7.txt
+diff answer/output8.txt output/output8.txt
+diff answer/output9.txt output/output9.txt
+diff answer/output10.txt output/output10.txt
+diff answer/outputN0.txt output/outputN0.txt
+diff answer/outputN1.txt output/outputN1.txt
+diff answer/outputN2.txt output/outputN2.txt
+diff answer/outputN3.txt output/outputN3.txt
+diff answer/outputN4.txt output/outputN4.txt
