@@ -11,10 +11,16 @@ using namespace std;
 class SA { // Simulated Annealing
     
 public:
+    int alpha; 
+    int W, H; // outline width/height
+    int Blk_num, Ter_num; // Block and Terminal number
+
     SequencePair sp;
     unordered_map<string, BLK*> BlockList;
     unordered_map<string, TER*> TerminalList;
     vector<NET> NetList;
+
+    SA(int in_alpha) { alpha = in_alpha; }
 
     void LoadUnit(string file);
     void LoadNet(string file);

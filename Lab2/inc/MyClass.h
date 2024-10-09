@@ -10,6 +10,7 @@ using namespace std;
 class UNIT { // Base class
 
 public:
+    string name;
     virtual pair<int, int> GetPoint() const = 0;
 
 };
@@ -17,9 +18,11 @@ public:
 class BLK : public UNIT {
 
 public:
-    string name;
+    // string name;
     int w, h;
     int x, y; // lower left
+
+    BLK(string Name, int width, int height);
 
     pair<int, int> GetPoint() const override;
     void Rotate();
@@ -29,8 +32,10 @@ public:
 class TER : public UNIT {
 
 public:
-    string name;
+    // string name;
     int x, y;
+
+    TER(string Name, int X, int Y);
 
     pair<int, int> GetPoint() const override;
 
@@ -39,8 +44,14 @@ public:
 class NET {
 
 public:
-    vector<UNIT*> net;
+    int degree;
+    vector<UNIT*> list;
+
+    NET() {};
+    NET(int Degree) { degree = Degree; }
+
     int HPWL();
+    string GetName(int index);
 
 };
 

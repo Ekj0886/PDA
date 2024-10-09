@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
-#include"VEB.h"
+#include "VEB.h"
+#include "SA.h"
 
 #define F first 
 #define S second
@@ -11,19 +12,17 @@ int main(int argc, char *argv[]) {
     // ifstream infile (argv[1]);
     // ofstream outfile(argv[2]);
     
-    VEB v(16);
-    v.Insert(0);
-    v.Insert(2);
-    v.Insert(5);
-    cout << v.min << " " << v.max << endl;
-    cout << v.summary->min << " " << v.summary->max << endl;
+    int alpha = stoi(argv[1]);
+    string Unitfile = argv[2];
+    string Netfile   = argv[3];
+    string output    = argv[4];
 
-    cout << v.Successor(0) << endl;
-    cout << v.Successor(2) << endl;
-    cout << v.Predecessor(2) << endl;
-    v.Delete(0);
-    cout << v.Predecessor(2) << endl;
-    
+    SA Simulated_Annealing(alpha);
+
+    Simulated_Annealing.LoadUnit(Unitfile);
+    Simulated_Annealing.LoadNet(Netfile);
+
+
     return 0;
 
 }
