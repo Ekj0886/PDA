@@ -22,7 +22,7 @@ def draw_block(ax, x, y, width, height, block_id):
     # Add the ID text in the center of the block
     text_x = x + width / 2  # Center x
     text_y = y + height / 2  # Center y
-    ax.text(text_x, text_y, str(block_id), fontsize=10, ha='center', va='center', color='white')
+    ax.text(text_x, text_y, str(block_id), fontsize=15, ha='center', va='center', color='white')
 
 def main():
     # Read command-line arguments for input and output file names
@@ -51,7 +51,7 @@ def main():
     # Read and draw each block
     for i in range(2, total_block_number + 2):  # Start from line 2 to total blocks
         ss = f[i].split(" ")
-        block_id = int(ss[0])  # ID of the block
+        block_id = ss[0]  # ID of the block
         x = int(ss[1])  # Lower-left x coordinate
         y = int(ss[2])  # Lower-left y coordinate
         width = int(ss[3])  # Width of the block
