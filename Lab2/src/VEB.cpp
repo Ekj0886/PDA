@@ -13,22 +13,19 @@ VEB::VEB(int size) {
     min = -1;
     max = -1;
     
-    if (size > 2) {
-        int upperSize = ceil(sqrt(size));
-        summary = new VEB(upperSize);
-        cout << "Summary: " << upperSize << endl;
-        cluster = new VEB*[upperSize];
-        cout << "Cluster: " << upperSize << endl;
-        for (int i = 0; i < upperSize; i++) {
-            cout << "sub cluster " << upperSize << endl;
-            cluster[i] = new VEB(upperSize);
-        }
-    } 
-    else { // top level
+    if (u <= 2) {
         summary = nullptr;
         cluster = nullptr;
+    } else {
+        int subsize = ceil(sqrt(u));  // Get the size of subproblems
+        summary = new VEB(subsize);
+        cluster = new VEB*[subsize];
+        for (int i = 0; i < subsize; ++i) {
+            cluster[i] = new VEB(subsize);  // Initialize cluster
+        }
     }
 }
+
 
 VEB::~VEB() {
     if(summary) delete summary;
@@ -41,43 +38,29 @@ VEB::~VEB() {
 }
 
 void VEB::Insert(int x) {
-    // Base case: if universe size is 2
-    if (this->u == 2) {
-        if (x == 0) {
-            this->min = 0;
-        } else {
-            this->max = 1;
+    if (min == -1) {
+        min = x;
+        max = x;
+    }
+    else {
+        if (x < min) {
+            swap(min, x);
         }
-        return;
-    }
-
-    // If the tree is empty, set min and max
-    if (this->min == -1) {
-        this->min = this->max = x;
-        return;
-    }
-
-    // If x is smaller than the current minimum, swap min and x
-    if (x < this->min) {
-        std::swap(x, this->min);
-    }
-
-    // If x is greater than the current maximum, update the maximum
-    if (x > this->max) {
-        this->max = x;
-    }
-
-    // If the tree has more than two elements, proceed recursively
-    if (this->u > 2) {
-        int highX = high(x);
-        int lowX = low(x);
-
-        // If the cluster is empty, insert into the summary and cluster
-        if (cluster[highX]->min == -1) {
-            summary->Insert(highX);
-            cluster[highX]->min = cluster[highX]->max = lowX;
-        } else {
-            cluster[highX]->Insert(lowX);
+ 
+        // Not base case then...
+        if (u > 2) {
+            if (cluster[high(x)]->min == -1) {
+                summary->Insert(high(x));
+                cluster[high(x)]->min = low(x);
+                cluster[high(x)]->max = low(x);
+            }
+            else {
+                cluster[high(x)]->Insert(low(x));
+            }
+        }
+ 
+        if (x > max) {
+            max = x;
         }
     }
 }
@@ -85,12 +68,12 @@ void VEB::Insert(int x) {
 
 bool VEB::Member(int x) {
     if (x == min || x == max) {
-            return true;
-        } else if (u == 2) {
-            return false;
-        } else {
-            return cluster[high(x)]->Member(low(x));
-        }
+        return true;
+    } else if (u == 2) {
+        return false;
+    } else {
+        return cluster[high(x)]->Member(low(x));
+    }
 }
 
 // int VEB::Successor(int x) {
@@ -121,42 +104,71 @@ bool VEB::Member(int x) {
 //     }
 // }
 
-int VEB::Successor(int x) {
-    // Base case: universe size is 2
-    if (this->u == 2) {
-        if (x == 0 && this->max == 1)
+int VEB::Successor(int key) {
+    if (u == 2) {
+        if (key == 0 && max == 1) 
             return 1;
         else
-            return -1;  // No successor
-    }
-
-    // If x is greater than or equal to the maximum element, return -1 (no successor)
-    if (x >= this->max)
-        return -1;
-
-    // If x is less than the minimum, the min is the successor
-    if (x < this->min)
-        return this->min;
-
-    // Get high and low parts of x
-    int highX = high(x);
-    int lowX = low(x);
-
-    // Search for a successor within the same cluster
-    if (cluster[highX] != nullptr && lowX < cluster[highX]->max) {
-        int lowSuccessor = cluster[highX]->Successor(lowX);
-        return index(highX, lowSuccessor);  // Combine high and low
+            return -1;
+    } else if (min != -1 && key < min) {
+        return min;
     } else {
-        // Find the smallest element in the summary larger than highX
-        int highSuccessor = summary->Successor(highX);
-        if (highSuccessor == -1) {
-            return -1;  // No successor in the summary
+        int subsize = ceil(sqrt(u));
+        int high = key / subsize, low = key % subsize; 
+        int maxincluster = cluster[high]->max;
+        
+        int offset = 0, succcluster = 0;
+        if (maxincluster != -1 && low < maxincluster) {
+            offset = cluster[high]->Successor(low);
+            return this->index(high, offset);
         } else {
-            int minLow = cluster[highSuccessor]->min;
-            return index(highSuccessor, minLow);  // Combine high and low parts
+            succcluster = summary->Successor(high);
+            if (succcluster == -1) {
+                return -1;
+            } else {
+                offset = cluster[succcluster]->min;
+                return this->index(succcluster, offset);
+            }
         }
     }
 }
+
+// int VEB::Successor(int x) {
+//     // Base case: universe size is 2
+//     if (this->u == 2) {
+//         if (x == 0 && this->max == 1)
+//             return 1;
+//         else
+//             return -1;  // No successor
+//     }
+
+//     // If x is greater than or equal to the maximum element, return -1 (no successor)
+//     if (x >= this->max)
+//         return -1;
+
+//     // If x is less than the minimum, the min is the successor
+//     if (x < this->min)
+//         return this->min;
+
+//     // Get high and low parts of x
+//     int highX = high(x);
+//     int lowX = low(x);
+
+//     // Search for a successor within the same cluster
+//     if (cluster[highX] != nullptr && lowX < cluster[highX]->max) {
+//         int lowSuccessor = cluster[highX]->Successor(lowX);
+//         return index(highX, lowSuccessor);  // Combine high and low
+//     } else {
+//         // Find the smallest element in the summary larger than highX
+//         int highSuccessor = summary->Successor(highX);
+//         if (highSuccessor == -1) {
+//             return -1;  // No successor in the summary
+//         } else {
+//             int minLow = cluster[highSuccessor]->min;
+//             return index(highSuccessor, minLow);  // Combine high and low parts
+//         }
+//     }
+// }
 
 
 // int VEB::Predecessor(int x) {

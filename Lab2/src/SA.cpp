@@ -109,87 +109,88 @@ void SA::LoadNet(string file) {
 }
 
 
-
 void SA::GetCoordinate() {
 
-    // VEB Vx(Blk_num + 1);
-    // vector<int> BUCKLx(Blk_num + 1);
+    VEB Vx(Blk_num + 1);
+    vector<int> BUCKLx(Blk_num + 1);
 
-    // Vx.Insert(0);
-    // BUCKLx[0] = 0;
+    Vx.Insert(0);
+    BUCKLx[0] = 0;
 
-    // for(int i = 0; i < Blk_num; i++) {
-    //     BLK* blk = SP.X[i];
-    //     cout << endl << blk->name << endl;
-    //     auto ptr = find(SP.Y.begin(), SP.Y.end(), blk);
-    //     int p = distance(SP.Y.begin(), ptr);
-    //     p++;
-    //     cout << "p: " << p << endl;
+    for(int i = 0; i < Blk_num; i++) {
+        BLK* blk = SP.X[i];
+        auto ptr = find(SP.Y.begin(), SP.Y.end(), blk);
+        int p = distance(SP.Y.begin(), ptr);
+        p++;
 
-    //     Vx.Insert(p);
-    //     cerr << "Inserted" << endl;
-    //     cout << "Pre: " << Vx.Predecessor(p) << endl;
-    //     blk->x = BUCKLx[Vx.Predecessor(p)];
-    //     cout << blk->x << endl;
-    //     BUCKLx[p] = blk->x + blk->w;
-    //     cout << "BUCK p: " << BUCKLx[p] << endl;
+        Vx.Insert(p);
+        blk->x = BUCKLx[Vx.Predecessor(p)];
+        BUCKLx[p] = blk->x + blk->w;
 
-    //     int s = Vx.Successor(p);
-    //     cout << "s: " << s << endl;
-    //     while(s != -1) {
-    //         if(BUCKLx[s] <= BUCKLx[p]) {
-    //             int s_nxt = Vx.Successor(s);
-    //             Vx.Delete(s);
-    //             if(s_nxt == -1) break;
-    //             s = s_nxt;
-    //         } 
-    //     } 
-    // }
+        int s = Vx.Successor(p);
+        while(s != -1) {
+            int s_nxt = Vx.Successor(s);
+            if(BUCKLx[s] <= BUCKLx[p]) {
+                Vx.Delete(s);
+                if(s_nxt == -1) break;
+            } 
+            s = s_nxt;
+        } 
+    }
 
-    // VEB Vy(Blk_num + 1);
-    // vector<int> BUCKLy(Blk_num + 1);
 
-    // Vy.Insert(0);
-    // BUCKLy[0] = 0;
+    VEB Vy(Blk_num + 1);
+    vector<int> BUCKLy(Blk_num + 1);
 
-    // for(int i = Blk_num-1; i >= 0; i--) {
-    //     BLK* blk = SP.X[i];
-    //     auto ptr = find(SP.Y.begin(), SP.Y.end(), blk);
-    //     int p = distance(SP.Y.begin(), ptr);
+    Vy.Insert(0);
+    BUCKLy[0] = 0;
 
-    //     Vy.Insert(p);
-    //     blk->y = BUCKLy[Vy.Predecessor(p)];
-    //     BUCKLy[p] = blk->y + blk->h;
+    for(int i = Blk_num-1; i >= 0; i--) {
+        BLK* blk = SP.X[i];
+        auto ptr = find(SP.Y.begin(), SP.Y.end(), blk);
+        int p = distance(SP.Y.begin(), ptr);
+        p++;
 
-    //     int s = Vy.Successor(p);
-    //     while(s != -1) {
-    //         if(BUCKLy[s] <= BUCKLy[p]) {
-    //             int s_nxt = Vy.Successor(s);
-    //             Vy.Delete(s);
-    //             if(s_nxt == -1) break;
-    //             s = s_nxt;
-    //         } 
-    //     } 
-    // }
+        Vy.Insert(p);
+        blk->y = BUCKLy[Vy.Predecessor(p)];
+        BUCKLy[p] = blk->y + blk->h;
+
+        int s = Vy.Successor(p);
+        while(s != -1) {
+            int s_nxt = Vy.Successor(s);
+            if(BUCKLy[s] <= BUCKLy[p]) {
+                Vy.Delete(s);
+                if(s_nxt == -1) break;
+            } 
+            s = s_nxt;
+        }
+    }
 
 }
+
+void SA::DumpFloorPlan(string file) {
+    
+    ofstream outfile("floorplan/" + file + ".txt");
+    ofstream outdraw("draw");
+
+    outfile << Blk_num << endl;
+    outfile << W << " " << H << endl;
+    for (auto it = BlockList.begin(); it != BlockList.end(); ++it) {
+        BLK* blk = it->S;
+        outfile << blk->name << " " << blk->x << " " << blk->y << " " << blk->w << " " << blk->h << endl;
+    }
+
+    outdraw << "python3 draw.py floorplan/" << file << ".txt " << file << endl;
+
+}
+
 
 void SA::Init() { 
 
     SP.Shuffle();
     SP.Print();
 
-    // cout << Blk_num + 1 << endl;
-    VEB v(10);
-    v.Insert(0);
-    v.Insert(4);
-    v.Insert(2);
-    // v.Insert(15);
-    cout << v.Predecessor(2) << endl;
-    cout << v.Successor(2) << endl;
-    cout << v.Predecessor(4) << endl;
-    cout << v.Successor(4) << endl;
-
-    // GetCoordinate();
+    GetCoordinate();
+    DumpFloorPlan("test");
 
 }

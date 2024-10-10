@@ -19,9 +19,9 @@ public:
     VEB(int size);
     ~VEB();
 
-    int high(int x) { return x / (int)sqrt(u); }
-    int low(int x) { return x % (int)sqrt(u); }
-    int index(int high, int low) { return high * (int)sqrt(u) + low; }
+    int high(int x) { return x / (int)ceil(sqrt(u)); }
+    int low(int x) { return x % (int)ceil(sqrt(u)); }
+    int index(int high, int low) { return high * (int)ceil(sqrt(u)) + low; }
 
     void Insert(int x);
     bool Member(int x);

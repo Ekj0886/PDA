@@ -23,11 +23,14 @@ public:
 
     SA(int in_alpha) { alpha = in_alpha; }
 
+    // Flow function
     void LoadUnit(string file);
     void LoadNet(string file);
-    void GetCoordinate();
     void Init();
 
+    // Utility
+    void GetCoordinate();
+    void DumpFloorPlan(string);
 
 };
 
