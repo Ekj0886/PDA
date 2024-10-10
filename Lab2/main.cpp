@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
     Simulated_Annealing.LoadUnit(Unitfile);
     Simulated_Annealing.LoadNet(Netfile);
     Simulated_Annealing.Init();
+    Simulated_Annealing.DumpFloorPlan("test");
 
 
     return 0;

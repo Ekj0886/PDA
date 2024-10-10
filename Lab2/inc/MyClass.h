@@ -61,6 +61,7 @@ public:
 
     void Shuffle();
     void Print();
+
 };
 
 #endif

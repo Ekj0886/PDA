@@ -72,8 +72,10 @@ def main():
     ax = fig.add_subplot(111)
 
     # Adjust the axis limits based on min/max values of blocks and outline
-    ax.set_xlim(min_x, max_x)  # Add 10 pixels margin
-    ax.set_ylim(min_y, max_y)
+    Wl = 0.05*(max_x - min_x)
+    Hl = 0.05*(max_y - min_y)
+    ax.set_xlim(min_x - Wl, max_x + Wl)  # Add 10 pixels margin
+    ax.set_ylim(min_y - Hl, max_y + Hl)
 
     # Draw the outline of the window (even if some blocks extend outside)
 

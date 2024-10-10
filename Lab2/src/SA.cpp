@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <random>
 #include "SA.h"
 
 #define F first 
@@ -52,9 +53,12 @@ void SA::LoadUnit(string file) {
     SkipEmpty(infile, inst);
     
     // Load Block information
+
+    Blk_area = 0;
     for(int i = 0; i < Blk_num; i++) {
         GetLine(infile, inst);
         BLK* block = new BLK(inst[0], stoi(inst[1]), stoi(inst[2]));
+        Blk_area += (stoi(inst[1])*stoi(inst[2]));
         BlockList[inst[0]] = block;
         SP.X.push_back(block);
         SP.Y.push_back(block);
@@ -111,6 +115,9 @@ void SA::LoadNet(string file) {
 
 void SA::GetCoordinate() {
 
+    W_fp = 0;
+    H_fp = 0;
+
     VEB Vx(Blk_num + 1);
     vector<int> BUCKLx(Blk_num + 1);
 
@@ -125,6 +132,9 @@ void SA::GetCoordinate() {
 
         Vx.Insert(p);
         blk->x = BUCKLx[Vx.Predecessor(p)];
+        
+        if(W_fp < blk->x + blk->w) W_fp = blk->x + blk->w;
+
         BUCKLx[p] = blk->x + blk->w;
 
         int s = Vx.Successor(p);
@@ -137,6 +147,7 @@ void SA::GetCoordinate() {
             s = s_nxt;
         } 
     }
+
 
 
     VEB Vy(Blk_num + 1);
@@ -153,6 +164,9 @@ void SA::GetCoordinate() {
 
         Vy.Insert(p);
         blk->y = BUCKLy[Vy.Predecessor(p)];
+
+        if(H_fp < blk->y + blk->h) H_fp = blk->y + blk->h;
+
         BUCKLy[p] = blk->y + blk->h;
 
         int s = Vy.Successor(p);
@@ -165,6 +179,7 @@ void SA::GetCoordinate() {
             s = s_nxt;
         }
     }
+
 
 }
 
@@ -184,13 +199,109 @@ void SA::DumpFloorPlan(string file) {
 
 }
 
+void SA::RotateBlk() {
+
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distr(0, SP.X.size() - 1);
+    BLK* blk = SP.X[distr(gen)];
+    // cout << blk->name << endl;
+    // cout << blk->w << " " << blk->h << endl;
+
+    blk->Rotate();
+
+    // cout << blk->w << " " << blk->h << endl;
+
+}
+
+void SA::SwapX() {
+    
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distr(0, SP.X.size() - 1);
+    int index1 = distr(gen);
+    int index2 = distr(gen);
+    while (index2 == index1) index2 = distr(gen);
+    
+    swap(SP.X[index1], SP.X[index2]);
+    
+}
+
+void SA::SwapY() {
+
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distr(0, SP.Y.size() - 1);
+    int index1 = distr(gen);
+    int index2 = distr(gen);
+    while (index2 == index1) index2 = distr(gen);
+    
+    swap(SP.Y[index1], SP.Y[index2]);
+
+}
+
+void SA::Swap() {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distr(0, SP.X.size() - 1);
+    int index1 = distr(gen);
+    int index2 = distr(gen);
+    while (index2 == index1) index2 = distr(gen);
+    
+    auto ptr = find(SP.Y.begin(), SP.Y.end(), SP.X[index1]);
+    int q1 = distance(SP.Y.begin(), ptr);
+    ptr = find(SP.Y.begin(), SP.Y.end(), SP.X[index2]);
+    int q2 = distance(SP.Y.begin(), ptr);
+
+    swap(SP.X[index1], SP.X[index2]);
+    swap(SP.Y[q1], SP.Y[q2]);
+}
+
+bool SA::Outside(BLK* blk) {
+    if(blk->x + blk->w > W || blk->y + blk->h > H) return true;
+    else return false;
+}
+
 
 void SA::Init() { 
 
     SP.Shuffle();
-    SP.Print();
+    SequencePair SP_nxt = SP;
 
     GetCoordinate();
-    DumpFloorPlan("test");
+    int cost = DeadSpace();
+    int i = 0;
+
+    while( OutofBound() && i < 2000 ) {
+        i++;
+        Walk();
+        GetCoordinate();
+
+        if(DeadSpace() >= cost) SP = SP_nxt; 
+        else {
+            cost = DeadSpace();
+            cout << "Update cost: " << cost << endl;
+        }
+    }
+
+    cout << cost << endl;
+    SP.Print();
+}
+
+void SA::Walk() {
+
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distr(0, 3);
+    
+    int opt = distr(gen);
+
+    switch(opt) {
+        case 0: RotateBlk();
+        case 1: SwapX();
+        case 2: SwapY();
+        case 3: Swap();
+        default: Swap();
+    }
 
 }

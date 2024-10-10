@@ -1,5 +1,6 @@
 make
 # echo "Make Done"
 # ./Lab2 0.5 simple/simple.block simple/simple.nets output/simple.txt
-# ./Lab2 0.5 ami33/ami33.block ami33/ami33.nets output/ami33.txt
-./Lab2 0.5 ami49/ami49.block ami49/ami49.nets output/ami49.txt
+./Lab2 0.5 ami33/ami33.block ami33/ami33.nets output/ami33.txt
+# ./Lab2 0.5 ami49/ami49.block ami49/ami49.nets output/ami49.txt
+./draw
