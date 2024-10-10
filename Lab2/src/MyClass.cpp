@@ -66,3 +66,25 @@ string NET::GetName(int index) {
     return list[index]->name;
 }
 // =============================================
+
+
+// SequencePair ================================
+void SequencePair::Shuffle() {
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(X.begin(), X.end(), g);
+    shuffle(Y.begin(), Y.end(), g);
+}
+
+void SequencePair::Print() {
+    cout << endl;
+    cout << "X: ";
+    for(unsigned int i = 0; i < X.size(); i++) {
+        cout << X[i]->name << " ";
+    }cout << endl;
+    cout << "Y: ";
+    for(unsigned int i = 0; i < Y.size(); i++) {
+        cout << Y[i]->name << " ";
+    }cout << endl << endl;
+}
+// =============================================

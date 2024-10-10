@@ -18,9 +18,8 @@ public:
 class BLK : public UNIT {
 
 public:
-    // string name;
     int w, h;
-    int x, y; // lower left
+    int x, y; // lower left point
 
     BLK(string Name, int width, int height);
 
@@ -32,8 +31,7 @@ public:
 class TER : public UNIT {
 
 public:
-    // string name;
-    int x, y;
+    int x, y; // single point in terminal
 
     TER(string Name, int X, int Y);
 
@@ -56,6 +54,13 @@ public:
 };
 
 
-typedef vector<BLK*> SequencePair;
+class SequencePair {
+public:
+    vector<BLK*> X;
+    vector<BLK*> Y;
+
+    void Shuffle();
+    void Print();
+};
 
 #endif

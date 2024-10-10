@@ -2,6 +2,7 @@
 #define SA_H
 #include <bits/stdc++.h>
 #include "MyClass.h"
+#include "VEB.h"
 
 #define F first 
 #define S second
@@ -15,7 +16,7 @@ public:
     int W, H; // outline width/height
     int Blk_num, Ter_num; // Block and Terminal number
 
-    SequencePair sp;
+    SequencePair SP;
     unordered_map<string, BLK*> BlockList;
     unordered_map<string, TER*> TerminalList;
     vector<NET> NetList;
@@ -24,6 +25,9 @@ public:
 
     void LoadUnit(string file);
     void LoadNet(string file);
+    void GetCoordinate();
+    void Init();
+
 
 };
 

@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include "VEB.h"
 #include "SA.h"
 
 #define F first 
@@ -21,6 +20,7 @@ int main(int argc, char *argv[]) {
 
     Simulated_Annealing.LoadUnit(Unitfile);
     Simulated_Annealing.LoadNet(Netfile);
+    Simulated_Annealing.Init();
 
 
     return 0;
