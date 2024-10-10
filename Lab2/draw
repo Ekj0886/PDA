@@ -1,1 +1,2 @@
-python3 draw.py floorplan/test.txt test
+python3 draw.py floorplan/Init.txt Init
+python3 draw.py floorplan/Stage0.txt Stage0

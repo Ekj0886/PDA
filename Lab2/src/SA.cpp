@@ -21,7 +21,7 @@ void GetLine(ifstream& infile, vector<string>& inst) {
 void SkipEmpty(ifstream& infile, vector<string>& inst) {
     streampos pos;
     do {
-        // cout << "empty" << endl;
+        // std::cout << "empty" << endl;
         pos = infile.tellg();
         GetLine(infile, inst);
     } while(inst.size() == 0);
@@ -75,7 +75,7 @@ void SA::LoadUnit(string file) {
         TerminalList[inst[0]] = terminal;
     }
 
-    cout << "== Load Unit Done" << endl;
+    std::cout << "== Load Unit Done" << endl;
 
 }
 
@@ -108,7 +108,7 @@ void SA::LoadNet(string file) {
 
     } 
 
-    cout << "== Load Netlist Done" << endl;
+    std::cout << "== Load Netlist Done" << endl;
 
 }
 
@@ -186,7 +186,7 @@ void SA::GetCoordinate() {
 void SA::DumpFloorPlan(string file) {
     
     ofstream outfile("floorplan/" + file + ".txt");
-    ofstream outdraw("draw");
+    ofstream outdraw("draw", ios::app);
 
     outfile << Blk_num << endl;
     outfile << W << " " << H << endl;
@@ -205,12 +205,12 @@ void SA::RotateBlk() {
     mt19937 gen(rd());
     uniform_int_distribution<> distr(0, SP.X.size() - 1);
     BLK* blk = SP.X[distr(gen)];
-    // cout << blk->name << endl;
-    // cout << blk->w << " " << blk->h << endl;
-
+    // std::cout << blk->name << endl;
+    // std::cout << blk->w << " " << blk->h << endl;
+    rFlag = blk->name;
     blk->Rotate();
 
-    // cout << blk->w << " " << blk->h << endl;
+    // std::cout << blk->w << " " << blk->h << endl;
 
 }
 
@@ -262,37 +262,94 @@ bool SA::Outside(BLK* blk) {
     else return false;
 }
 
-
-void SA::Init() { 
-
-    SP.Shuffle();
-    SequencePair SP_nxt = SP;
-
+float SA::OutArea() {
     GetCoordinate();
-    int cost = DeadSpace();
-    int i = 0;
-
-    while( OutofBound() && i < 2000 ) {
-        i++;
-        Walk();
-        GetCoordinate();
-
-        if(DeadSpace() >= cost) SP = SP_nxt; 
-        else {
-            cost = DeadSpace();
-            cout << "Update cost: " << cost << endl;
+    long long cost = 0;
+    for (auto it = BlockList.begin(); it != BlockList.end(); ++it) {
+        BLK* blk = it->S;
+        if(Outside(blk)) {
+            cost += (blk->w*blk->h);
         }
     }
+    return (float) 1000 * Blk_num * cost / Blk_area;
+}
 
-    cout << cost << endl;
-    SP.Print();
+void SA::Init() {
+    SP.Shuffle();
+    float cost = OutArea();
+    int i = 0;
+    while( OutofBound() && i < 5000 ) {
+        i++;
+        Walk();
+        float cost_nxt = OutArea();
+        if(cost_nxt > cost) ReverseWalk();
+        else {
+            cost = cost_nxt;
+        }
+    }
+    cout <<  "== Init Floorplan Done " << "cost: " << cost << endl;
+}
+
+void SA::Stage0(float T) { // Place within outline
+    
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(0.0, 1.0);
+
+    // float T = 20000;
+    float rate = 0.9995;
+    float cost, cost_new, delta_cost;
+    float P, prob;
+    int iteration = 0;
+    int Uphill = 0;
+    int Downhill = 0;
+
+    cost = OutArea();
+
+    while( OutofBound() && iteration < 100000 ) {
+        iteration ++;
+        Walk();
+        cost_new = OutArea();
+        delta_cost = cost_new - cost;
+        if(delta_cost <= 0) {
+            Downhill ++;
+            cost = cost_new;
+        } 
+        else {
+            P = exp( (float) -1 * delta_cost / T );
+            prob = dis(gen);
+            if(prob <= P) {
+                Uphill ++;
+                cost = cost_new;
+            }
+            else {
+                ReverseWalk();
+            }
+        }
+        T *= rate;
+    }
+
+    cout <<  "== Stage0 Floorplan " << endl;
+    cout << "       Cost     : " << cost << endl;
+    cout << "       Temper   : " << T << endl;
+    cout << "       iteration: " << iteration << endl;
+    cout << "       Uphill   : " << Uphill << endl; 
+    cout << "       Downhill : " << Downhill << endl; 
+    
+    if(OutofBound()) {
+        // cout << "   Redo" << endl;
+        Stage0(T * 0.9);
+    }
+
 }
 
 void SA::Walk() {
 
+    SP_mem = SP;
+
     random_device rd;
     mt19937 gen(rd());
-    uniform_int_distribution<> distr(0, 3);
+    uniform_int_distribution<> distr(0, 6);
     
     int opt = distr(gen);
 
@@ -301,7 +358,19 @@ void SA::Walk() {
         case 1: SwapX();
         case 2: SwapY();
         case 3: Swap();
+        case 4: SwapX();
+        case 5: SwapY();
         default: Swap();
     }
 
+}
+
+void SA::ReverseWalk() {
+    SP = SP_mem;
+    if(rFlag.length() > 0) {
+        BLK* blk = BlockList[rFlag];
+        blk->Rotate();       
+    }
+    rFlag = "";
+    GetCoordinate();
 }

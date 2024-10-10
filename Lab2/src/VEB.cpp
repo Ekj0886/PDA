@@ -76,33 +76,6 @@ bool VEB::Member(int x) {
     }
 }
 
-// int VEB::Successor(int x) {
-//     if (u == 2) {
-//         if (x == 0 && max == 1) return 1;
-//         else return -1;
-//     } 
-//     else if (min != -1 && x < min) return min;
-//     else {
-//         int maxLow = cluster[high(x)]->max;
-
-//         if (maxLow != -1 && low(x) < maxLow) {
-
-//             int offset = cluster[high(x)]->Successor(low(x));
-//             return index(high(x), offset);
-
-//         } else {
-
-//             int sucX = summary->Successor(high(x));
-//             if (sucX == -1) return -1;
-//             else {
-//                 int offset = cluster[sucX]->min;
-//                 return index(sucX, offset);
-//             }
-            
-//         }
-
-//     }
-// }
 
 int VEB::Successor(int key) {
     if (u == 2) {
@@ -132,70 +105,6 @@ int VEB::Successor(int key) {
         }
     }
 }
-
-// int VEB::Successor(int x) {
-//     // Base case: universe size is 2
-//     if (this->u == 2) {
-//         if (x == 0 && this->max == 1)
-//             return 1;
-//         else
-//             return -1;  // No successor
-//     }
-
-//     // If x is greater than or equal to the maximum element, return -1 (no successor)
-//     if (x >= this->max)
-//         return -1;
-
-//     // If x is less than the minimum, the min is the successor
-//     if (x < this->min)
-//         return this->min;
-
-//     // Get high and low parts of x
-//     int highX = high(x);
-//     int lowX = low(x);
-
-//     // Search for a successor within the same cluster
-//     if (cluster[highX] != nullptr && lowX < cluster[highX]->max) {
-//         int lowSuccessor = cluster[highX]->Successor(lowX);
-//         return index(highX, lowSuccessor);  // Combine high and low
-//     } else {
-//         // Find the smallest element in the summary larger than highX
-//         int highSuccessor = summary->Successor(highX);
-//         if (highSuccessor == -1) {
-//             return -1;  // No successor in the summary
-//         } else {
-//             int minLow = cluster[highSuccessor]->min;
-//             return index(highSuccessor, minLow);  // Combine high and low parts
-//         }
-//     }
-// }
-
-
-// int VEB::Predecessor(int x) {
-//     if (u == 2) {
-//         if (x == 1 && min == 0) return 0;
-//         else return -1;
-//     } 
-//     else if (max != -1 && x > max) return max;
-//     else {
-//         int minLow = cluster[high(x)]->min;
-
-//         if (minLow != -1 && low(x) > minLow) {
-//             int offset = cluster[high(x)]->Predecessor(low(x));
-//             return index(high(x), offset);
-//         } else {
-//             int predCluster = summary->Predecessor(high(x));
-//             if (predCluster == -1) {
-//                 if (min != -1 && x > min) return min;
-//                 else return -1;
-//             } else {
-//                 int offset = cluster[predCluster]->max;
-//                 return index(predCluster, offset);
-//             }
-//         }
-
-//     }
-// }
 
 int VEB::Predecessor(int x) {
     // Base case: universe size is 2

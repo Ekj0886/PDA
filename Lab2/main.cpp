@@ -8,8 +8,12 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
+     auto start = std::chrono::high_resolution_clock::now();
+
     // ifstream infile (argv[1]);
     // ofstream outfile(argv[2]);
+    
+    ofstream outdraw("draw");
     
     int alpha = stoi(argv[1]);
     string Unitfile = argv[2];
@@ -21,8 +25,14 @@ int main(int argc, char *argv[]) {
     Simulated_Annealing.LoadUnit(Unitfile);
     Simulated_Annealing.LoadNet(Netfile);
     Simulated_Annealing.Init();
-    Simulated_Annealing.DumpFloorPlan("test");
+    Simulated_Annealing.DumpFloorPlan("Init");
+    Simulated_Annealing.Stage0(1000000);
+    Simulated_Annealing.DumpFloorPlan("Stage0");
 
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Execution time: " << duration.count() << " seconds" << std::endl;
 
     return 0;
 
