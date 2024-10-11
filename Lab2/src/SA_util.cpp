@@ -183,23 +183,6 @@ void SA::GetCoordinate() {
 
 }
 
-void SA::DumpFloorPlan(string file) {
-    
-    ofstream outfile("floorplan/" + file + ".txt");
-    ofstream outdraw("draw", ios::app);
-
-    outfile << Blk_num << endl;
-    outfile << W << " " << H << endl;
-    for (auto it = BlockList.begin(); it != BlockList.end(); ++it) {
-        BLK* blk = it->S;
-        outfile << blk->name << " " << blk->x << " " << blk->y << " " << blk->w << " " << blk->h << endl;
-    }
-
-    outdraw << "python3 draw.py floorplan/" << file << ".txt " << file << endl;
-
-}
-
-
 
 void SA::RotateBlk() {
 
@@ -264,10 +247,15 @@ bool SA::Outside(BLK* blk) {
     else return false;
 }
 
+float SA::DeadSpace() {
+    GetCoordinate(); 
+    return (float) 5000 * (W_fp*H_fp - Blk_area)/(W_fp*H_fp); 
+}
+
 float SA::OutArea() {
     GetCoordinate();
     long long cost = 0;
-    for (auto it = BlockList.begin(); it != BlockList.end(); ++it) {
+    for(auto it = BlockList.begin(); it != BlockList.end(); ++it) {
         BLK* blk = it->S;
         if(Outside(blk)) {
             cost += (blk->w*blk->h);
@@ -276,3 +264,27 @@ float SA::OutArea() {
     return (float) 1000 * Blk_num * cost / Blk_area;
 }
 
+int SA::Wire() {
+
+    GetCoordinate();
+    float wire_length = 0;
+    for(auto n : NetList) {
+        wire_length += n.HPWL();
+    }
+    return wire_length;
+}
+
+
+int SA::Cost() {
+
+    GetCoordinate();
+    float wire_length = 0;
+    for(auto n : NetList) {
+        wire_length += n.HPWL();
+    }
+
+    int cost = floor( (float)(alpha*W_fp*H_fp  + (1.0 - alpha)*wire_length) ); 
+
+    return cost; 
+
+}

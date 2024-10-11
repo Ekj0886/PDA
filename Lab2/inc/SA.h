@@ -19,7 +19,7 @@ private:
 
 
 public:
-    int alpha; 
+    float alpha; 
     int W, H; // outline width/height
     int Blk_num, Ter_num; // Block and Terminal number
     SequencePair SP;
@@ -27,13 +27,16 @@ public:
     unordered_map<string, TER*> TerminalList;
     vector<NET> NetList;
 
-    SA(int in_alpha) { alpha = in_alpha; rFlag = ""; }
+    SA(float in_alpha) { alpha = in_alpha; rFlag = ""; }
 
     // Flow function
-    void Init();
-    void Stage0(float T);
     void Walk(); // traverse to random neighborhood structure
     void ReverseWalk();
+    void Init();
+    void Stage0(float T);
+    void Stage1(float T);
+    void Stage2(float T);
+    void DumpOutput(string, float);
 
     // Utility Defined in SA_util.cpp
     void LoadUnit(string file);
@@ -50,8 +53,11 @@ public:
     void Swap();
 
     // Evaluate
-    int DeadSpace() { return (W_fp*H_fp - Blk_area)*100/(W_fp*H_fp); }  // Cost = DeadSpace percentage
+    float DeadSpace(); // Cost = DeadSpace percentage
     float OutArea();
+    int Wire();
+    int   Cost();
+
 };
 
 #endif

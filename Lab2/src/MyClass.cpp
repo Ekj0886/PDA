@@ -16,7 +16,7 @@ BLK::BLK(string Name, int width, int height) {
 }
 
 pair<int, int> BLK::GetPoint() const {
-    pair<int, int> point = make_pair(x+w/2, y+h/2);
+    pair<int, int> point = make_pair(x + floor(w/2), y + floor(h/2));
     return point;
 }
 
@@ -54,8 +54,8 @@ int NET::HPWL() {
         pair<int, int> pt = list[i]->GetPoint();
         if(max.F < pt.F) max.F = pt.F;
         if(max.S < pt.S) max.S = pt.S;
-        if(min.F < pt.F) min.F = pt.F;
-        if(min.S < pt.S) min.S = pt.S;
+        if(min.F > pt.F) min.F = pt.F;
+        if(min.S > pt.S) min.S = pt.S;
     }
 
     return (max.F - min.F) + (max.S - min.S);

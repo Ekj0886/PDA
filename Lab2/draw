@@ -1,3 +1,5 @@
 python3 plot.py
-python3 draw.py floorplan/Init.txt Init
-python3 draw.py floorplan/Stage0.txt Stage0
+python3 draw.py floorplan/Init_ami49.txt Init_ami49
+python3 draw.py floorplan/Stage0_ami49.txt Stage0_ami49
+python3 draw.py floorplan/Stage1_ami49.txt Stage1_ami49
+python3 draw.py floorplan/Stage2_ami49.txt Stage2_ami49

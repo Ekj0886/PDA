@@ -1,0 +1,2 @@
+./verifier 1 ami49/ami49.block ami49/ami49.nets output/ami49
+rm output/ami49.HPWL
