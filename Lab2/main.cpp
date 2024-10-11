@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
     // ofstream outfile(argv[2]);
     
     ofstream outdraw("draw");
+    outdraw << "python3 plot.py" << endl;
     
     int alpha = stoi(argv[1]);
     string Unitfile = argv[2];
@@ -26,7 +27,7 @@ int main(int argc, char *argv[]) {
     Simulated_Annealing.LoadNet(Netfile);
     Simulated_Annealing.Init();
     Simulated_Annealing.DumpFloorPlan("Init");
-    Simulated_Annealing.Stage0(1000000);
+    Simulated_Annealing.Stage0(1e6);
     Simulated_Annealing.DumpFloorPlan("Stage0");
 
 

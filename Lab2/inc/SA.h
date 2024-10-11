@@ -30,24 +30,24 @@ public:
     SA(int in_alpha) { alpha = in_alpha; rFlag = ""; }
 
     // Flow function
-    void LoadUnit(string file);
-    void LoadNet(string file);
     void Init();
     void Stage0(float T);
     void Walk(); // traverse to random neighborhood structure
     void ReverseWalk();
 
+    // Utility Defined in SA_util.cpp
+    void LoadUnit(string file);
+    void LoadNet(string file);
+    void GetCoordinate();
+    void DumpFloorPlan(string);
+    bool OutofBound() { return W_fp > W || H_fp > H; } // total floorplan exceed of outline
+    bool Outside(BLK*); // BLK outside of outline
+    
     // Neighborhood action
     void RotateBlk();
     void SwapX();
     void SwapY();
     void Swap();
-
-    // Utility
-    void GetCoordinate();
-    void DumpFloorPlan(string);
-    bool OutofBound() { return W_fp > W || H_fp > H; } // total floorplan exceed of outline
-    bool Outside(BLK*); // BLK outside of outline
 
     // Evaluate
     int DeadSpace() { return (W_fp*H_fp - Blk_area)*100/(W_fp*H_fp); }  // Cost = DeadSpace percentage
