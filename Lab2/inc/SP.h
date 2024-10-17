@@ -1,5 +1,5 @@
-#ifndef SA_H
-#define SA_H
+#ifndef SP_FP_H
+#define SP_FP_H
 #include <bits/stdc++.h>
 #include "MyClass.h"
 #include "VEB.h"
@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class SA { // Simulated Annealing
+class SP_FP { // Simulated Annealing
 
 private:
     long long W_fp, H_fp; // max x, y of floorplan result
@@ -27,7 +27,7 @@ public:
     unordered_map<string, TER*> TerminalList;
     vector<NET> NetList;
 
-    SA(float in_alpha) { alpha = in_alpha; rFlag = ""; }
+    SP_FP(float in_alpha) { alpha = in_alpha; rFlag = ""; }
 
     // Flow function
     void Walk(); // traverse to random neighborhood structure
@@ -38,7 +38,7 @@ public:
     void Stage2(float T);
     void DumpOutput(string, float);
 
-    // Utility Defined in SA_util.cpp
+    // Utility Defined in SP_util.cpp
     void LoadUnit(string file);
     void LoadNet(string file);
     void GetCoordinate();
@@ -55,7 +55,7 @@ public:
     // Evaluate
     float DeadSpace(); // Cost = DeadSpace percentage
     float OutArea();
-    int Wire();
+    int   Wire();
     int   Cost();
 
 };

@@ -1,13 +1,13 @@
 #include <bits/stdc++.h>
 #include <random>
-#include "SA.h"
+#include "SP.h"
 
 #define F first 
 #define S second
 
 using namespace std;
 
-void SA::Walk() {
+void SP_FP::Walk() {
 
     SP_mem = SP;
 
@@ -26,7 +26,7 @@ void SA::Walk() {
 
 }
 
-void SA::ReverseWalk() {
+void SP_FP::ReverseWalk() {
     SP = SP_mem;
     if(rFlag.length() > 0) {
         BLK* blk = BlockList[rFlag];
@@ -36,7 +36,15 @@ void SA::ReverseWalk() {
     GetCoordinate();
 }
 
-void SA::Init() {
+void SP_FP::Init() {
+
+    // initialize Sequence pair
+    for(auto blockmap : BlockList) {
+        BLK* block = blockmap.S;
+        SP.X.push_back(block);
+        SP.Y.push_back(block);
+    }
+
     SP.Shuffle();
     float cost = OutArea();
     int iteration = 0;
@@ -58,7 +66,7 @@ void SA::Init() {
 }
 
 
-void SA::Stage0(float Temp) { // Place within outline
+void SP_FP::Stage0(float Temp) { // Place within outline
 
     if(!OutofBound()) {
         std::cout << "== Stage0 Skipped (Already inside outline)" << endl;
@@ -111,7 +119,7 @@ void SA::Stage0(float Temp) { // Place within outline
 }
 
 
-void SA::Stage1(float Temp) { // Reduce DeadSpace
+void SP_FP::Stage1(float Temp) { // Reduce DeadSpace
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(0.0, 1.0);
@@ -123,7 +131,7 @@ void SA::Stage1(float Temp) { // Reduce DeadSpace
     int iteration = 0;
     int iter_num = min( (int)6e6/Blk_num, 100000 );
 
-    if(alpha > 0.5) cost = DeadSpace();
+    if(alpha >= 0.5) cost = DeadSpace();
     else            cost = Wire(); 
 
     while( iteration < iter_num ) {
@@ -163,7 +171,7 @@ void SA::Stage1(float Temp) { // Reduce DeadSpace
 }
 
 
-void SA::Stage2(float Temp) { // Reduce DeadSpace
+void SP_FP::Stage2(float Temp) { // Reduce DeadSpace
 
     if(alpha == 0 || alpha == 1) {
         std::cout << "== Stage2 Skipped (Alpha is 0 or 1)" << endl;
@@ -223,7 +231,7 @@ void SA::Stage2(float Temp) { // Reduce DeadSpace
 
 }
 
-void SA::DumpFloorPlan(string file) {
+void SP_FP::DumpFloorPlan(string file) {
     
     ofstream outfile("floorplan/" + file + ".txt");
     ofstream outdraw("draw", ios::app);
@@ -239,7 +247,7 @@ void SA::DumpFloorPlan(string file) {
 
 }
 
-void SA::DumpOutput(string file, float runtime) {
+void SP_FP::DumpOutput(string file, float runtime) {
     
     ofstream outfile(file);
     
@@ -258,3 +266,5 @@ void SA::DumpOutput(string file, float runtime) {
     std::cout << "== Dump Output" << endl; 
 
 }
+
+

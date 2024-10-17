@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "SA.h"
+#include "SP.h"
 
 #define F first 
 #define S second
@@ -30,7 +30,7 @@ void SkipEmpty(ifstream& infile, vector<string>& inst) {
 
 // functions defined in header file
 
-void SA::LoadUnit(string file) {
+void SP_FP::LoadUnit(string file) {
 
     ifstream infile(file);
     vector<string> inst;
@@ -60,8 +60,6 @@ void SA::LoadUnit(string file) {
         BLK* block = new BLK(inst[0], stoi(inst[1]), stoi(inst[2]));
         Blk_area += (stoi(inst[1])*stoi(inst[2]));
         BlockList[inst[0]] = block;
-        SP.X.push_back(block);
-        SP.Y.push_back(block);
     }
 
     if(Ter_num == 0) return; 
@@ -79,7 +77,7 @@ void SA::LoadUnit(string file) {
 
 }
 
-void SA::LoadNet(string file) {
+void SP_FP::LoadNet(string file) {
 
     ifstream infile(file);
     vector<string> inst;
@@ -113,7 +111,7 @@ void SA::LoadNet(string file) {
 }
 
 
-void SA::GetCoordinate() {
+void SP_FP::GetCoordinate() {
 
     W_fp = 0;
     H_fp = 0;
@@ -184,7 +182,7 @@ void SA::GetCoordinate() {
 }
 
 
-void SA::RotateBlk() {
+void SP_FP::RotateBlk() {
 
     random_device rd;
     mt19937 gen(rd());
@@ -199,7 +197,7 @@ void SA::RotateBlk() {
 
 }
 
-void SA::SwapX() {
+void SP_FP::SwapX() {
     
     random_device rd;
     mt19937 gen(rd());
@@ -212,7 +210,7 @@ void SA::SwapX() {
     
 }
 
-void SA::SwapY() {
+void SP_FP::SwapY() {
 
     random_device rd;
     mt19937 gen(rd());
@@ -225,7 +223,7 @@ void SA::SwapY() {
 
 }
 
-void SA::Swap() {
+void SP_FP::Swap() {
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<> distr(0, SP.X.size() - 1);
@@ -242,17 +240,17 @@ void SA::Swap() {
     swap(SP.Y[q1], SP.Y[q2]);
 }
 
-bool SA::Outside(BLK* blk) {
+bool SP_FP::Outside(BLK* blk) {
     if(blk->x + blk->w > W || blk->y + blk->h > H) return true;
     else return false;
 }
 
-float SA::DeadSpace() {
+float SP_FP::DeadSpace() {
     GetCoordinate(); 
     return (float) 5000 * (W_fp*H_fp - Blk_area)/(W_fp*H_fp); 
 }
 
-float SA::OutArea() {
+float SP_FP::OutArea() {
     GetCoordinate();
     long long cost = 0;
     for(auto it = BlockList.begin(); it != BlockList.end(); ++it) {
@@ -264,7 +262,7 @@ float SA::OutArea() {
     return (float) 1000 * Blk_num * cost / Blk_area;
 }
 
-int SA::Wire() {
+int SP_FP::Wire() {
 
     GetCoordinate();
     float wire_length = 0;
@@ -275,7 +273,7 @@ int SA::Wire() {
 }
 
 
-int SA::Cost() {
+int SP_FP::Cost() {
 
     GetCoordinate();
     float wire_length = 0;

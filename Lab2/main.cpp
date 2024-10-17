@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "SA.h"
+#include "SP.h"
 
 #define F first 
 #define S second
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     cout << "FloorPlan on case " << output_name << endl;
 
-    SA Simulated_Annealing(alpha);
+    SP_FP Simulated_Annealing(alpha);
     
     Simulated_Annealing.LoadUnit(Unitfile);
     Simulated_Annealing.LoadNet(Netfile);
