@@ -9,7 +9,7 @@ using namespace std;
 // functions defined in header file
 
 // Split the input line into inst segments
-void GetLine(ifstream& infile, vector<string>& inst) { 
+void BSTAR::GetLine(ifstream& infile, vector<string>& inst) { 
     inst.resize(0);
     string str;
     getline(infile, str);
@@ -19,7 +19,7 @@ void GetLine(ifstream& infile, vector<string>& inst) {
 }
 
 // Skip empty line in infile
-void SkipEmpty(ifstream& infile, vector<string>& inst) {
+void BSTAR::SkipEmpty(ifstream& infile, vector<string>& inst) {
     streampos pos;
     do {
         // std::cout << "empty" << endl;
@@ -108,5 +108,78 @@ void BSTAR::LoadNet(string file) {
     } 
 
     std::cout << "== Load Netlist Done" << endl;
+
+}
+
+Node* BSTAR::BuildTree() {
+
+    Node* Root = new Node(BlockList.begin()->S);
+    if(Blk_num < 2) return Root;
+
+    queue<Node*> q;
+    q.push(Root);
+
+    auto it = BlockList.begin();
+    it++;
+    while(it != BlockList.end() && !q.empty()) { 
+        
+        Node* n = q.front();
+        q.pop();
+
+        if(it != BlockList.end()) {
+            n->Left = new Node(it->S);
+            // cout << n->Left->blk->name << endl;
+            n->Left->Parent = n;
+            q.push(n->Left);
+            it++;
+        }
+        
+        if(it != BlockList.end()) {
+            n->Right = new Node(it->S);
+            // cout << n->Right->blk->name << endl;
+            n->Right->Parent = n;
+            q.push(n->Right);
+            it++;
+        }
+
+    }
+
+
+    return Root;
+
+}
+
+// Function to calculate the height of the tree
+int getHeight(Node* root) {
+    if (!root) return 0;
+    return 1 + std::max(getHeight(root->Left), getHeight(root->Right));
+}
+
+
+void BSTAR::PrintTree(Node* root, int indent = 0) {
+    if (root != nullptr) {
+        PrintTree(root->Right, indent + 4); // Print the right subtree
+        if (indent) {
+            std::cout << std::setw(indent) << ' ';
+        }
+        std::cout << root->Name() << "\n"; // Print root node
+        PrintTree(root->Left, indent + 4); // Print the left subtree
+    }
+}
+
+
+void BSTAR::Init() {
+    cout << "Build" << endl;
+    root = BuildTree();
+    cout << "Print" << endl;
+    PrintTree(root, 0);
+}
+
+void BSTAR::GetCoordinate() {
+    
+    W_fp = 0;
+    H_fp = 0;
+
+    
 
 }

@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include "SP.h"
+#include "BS.h"
 
 #define F first 
 #define S second
@@ -31,29 +32,38 @@ int main(int argc, char *argv[]) {
 
     cout << "FloorPlan on case " << output_name << endl;
 
-    SP_FP Simulated_Annealing(alpha);
+    // SP_FP SP_FloorPlan(alpha);
     
-    Simulated_Annealing.LoadUnit(Unitfile);
-    Simulated_Annealing.LoadNet(Netfile);
+    // SP_FloorPlan.LoadUnit(Unitfile);
+    // SP_FloorPlan.LoadNet(Netfile);
     
-    Simulated_Annealing.Init();
-    Simulated_Annealing.DumpFloorPlan("Init_" + output_name);
+    // SP_FloorPlan.Init();
+    // SP_FloorPlan.DumpFloorPlan("Init_" + output_name);
     
-    Simulated_Annealing.Stage0(1e6);
-    Simulated_Annealing.DumpFloorPlan("Stage0_" + output_name);
+    // SP_FloorPlan.Stage0(1e6);
+    // SP_FloorPlan.DumpFloorPlan("Stage0_" + output_name);
 
-    Simulated_Annealing.Stage1(35000);
-    Simulated_Annealing.DumpFloorPlan("Stage1_" + output_name);
+    // SP_FloorPlan.Stage1(35000);
+    // SP_FloorPlan.DumpFloorPlan("Stage1_" + output_name);
     
-    Simulated_Annealing.Stage2(35000);
-    Simulated_Annealing.DumpFloorPlan("Stage2_" + output_name);
+    // SP_FloorPlan.Stage2(35000);
+    // SP_FloorPlan.DumpFloorPlan("Stage2_" + output_name);
+
+
+    BSTAR BStar_FloorPlan;
+
+    BStar_FloorPlan.LoadUnit(Unitfile);
+    BStar_FloorPlan.LoadNet(Netfile);
+
+    BStar_FloorPlan.Init();
+
 
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
     float runtime = duration.count();
 
-    Simulated_Annealing.DumpOutput(output, runtime);
+    // SP_FloorPlan.DumpOutput(output, runtime);
     std::cout << "Execution time: " << runtime << " seconds" << std::endl << std::endl;
 
     return 0;

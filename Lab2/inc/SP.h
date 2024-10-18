@@ -39,6 +39,8 @@ public:
     void DumpOutput(string, float);
 
     // Utility Defined in SP_util.cpp
+    void GetLine(ifstream& infile, vector<string>& inst);
+    void SkipEmpty(ifstream& infile, vector<string>& inst);
     void LoadUnit(string file);
     void LoadNet(string file);
     void GetCoordinate();

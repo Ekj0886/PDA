@@ -8,7 +8,7 @@ using namespace std;
 
 // functions defined in header file
 // Split the input line into inst segments
-void GetLine(ifstream& infile, vector<string>& inst) { 
+void SP_FP::GetLine(ifstream& infile, vector<string>& inst) { 
     inst.resize(0);
     string str;
     getline(infile, str);
@@ -18,7 +18,7 @@ void GetLine(ifstream& infile, vector<string>& inst) {
 }
 
 // Skip empty line in infile
-void SkipEmpty(ifstream& infile, vector<string>& inst) {
+void SP_FP::SkipEmpty(ifstream& infile, vector<string>& inst) {
     streampos pos;
     do {
         // std::cout << "empty" << endl;
