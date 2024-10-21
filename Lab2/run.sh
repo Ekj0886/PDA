@@ -2,7 +2,7 @@ rm check
 touch check
 chmod +x check
 make
-./Lab2 1 ami33/ami33.block ami33/ami33.nets output/ami33
+./Lab2 0.5 ami33/ami33.block ami33/ami33.nets output/ami33
 ./draw
 # ./Lab2 1 ami49/ami49.block ami49/ami49.nets output/ami49
 # ./draw

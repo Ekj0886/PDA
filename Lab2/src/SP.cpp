@@ -263,7 +263,7 @@ void SP_FP::DumpOutput(string file, float runtime) {
         outfile << blk->x + blk->w << " " << blk->y + blk->h << endl;
     }
 
-    std::cout << "== Dump Output" << endl; 
+    std::cout << "== Dump SP Output" << endl; 
 
 }
 

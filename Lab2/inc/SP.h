@@ -29,7 +29,7 @@ public:
 
     SP_FP(float in_alpha) { alpha = in_alpha; rFlag = ""; }
 
-    // Flow function
+    // Flow function (Defined in SP.h)
     void Walk(); // traverse to random neighborhood structure
     void ReverseWalk();
     void Init();
@@ -38,7 +38,7 @@ public:
     void Stage2(float T);
     void DumpOutput(string, float);
 
-    // Utility Defined in SP_util.cpp
+    // Utility (Defined in SP_util.cpp)
     void GetLine(ifstream& infile, vector<string>& inst);
     void SkipEmpty(ifstream& infile, vector<string>& inst);
     void LoadUnit(string file);

@@ -18,7 +18,6 @@ int main(int argc, char *argv[]) {
     auto start = std::chrono::high_resolution_clock::now();
     
     ofstream outdraw("draw");
-    outdraw << "python3 plot.py" << endl;
 
     float alpha = stof(argv[1]);
     string Unitfile = argv[2];
@@ -30,40 +29,55 @@ int main(int argc, char *argv[]) {
     outcheck << "./verifier " << alpha << " " << Unitfile << " " << Netfile << " " << output << endl;
     outcheck << "rm " << output << ".HPWL" << endl;
 
-    cout << "FloorPlan on case " << output_name << endl;
-
-    // SP_FP SP_FloorPlan(alpha);
-    
-    // SP_FloorPlan.LoadUnit(Unitfile);
-    // SP_FloorPlan.LoadNet(Netfile);
-    
-    // SP_FloorPlan.Init();
-    // SP_FloorPlan.DumpFloorPlan("Init_" + output_name);
-    
-    // SP_FloorPlan.Stage0(1e6);
-    // SP_FloorPlan.DumpFloorPlan("Stage0_" + output_name);
-
-    // SP_FloorPlan.Stage1(35000);
-    // SP_FloorPlan.DumpFloorPlan("Stage1_" + output_name);
-    
-    // SP_FloorPlan.Stage2(35000);
-    // SP_FloorPlan.DumpFloorPlan("Stage2_" + output_name);
+    cout << "<< FloorPlan on case " << output_name << " >>" << endl;
 
 
-    BSTAR BStar_FloorPlan;
+    cout << endl << "< SP start >" << endl;
+    SP_FP SP_FloorPlan(alpha);
+    
+    SP_FloorPlan.LoadUnit(Unitfile);
+    SP_FloorPlan.LoadNet(Netfile);
+    
+    SP_FloorPlan.Init();
+    SP_FloorPlan.DumpFloorPlan("SP_Init_" + output_name);
+    
+    SP_FloorPlan.Stage0(1e6);
+    SP_FloorPlan.DumpFloorPlan("SP_Stage0_" + output_name);
+
+    SP_FloorPlan.Stage1(35000);
+    SP_FloorPlan.DumpFloorPlan("SP_Stage1_" + output_name);
+    
+    SP_FloorPlan.Stage2(35000);
+    SP_FloorPlan.DumpFloorPlan("SP_Stage2_" + output_name);
+
+    int SP_Cost = SP_FloorPlan.Cost();
+
+    cout << endl << "< BSTAR start >" << endl;
+    BSTAR BStar_FloorPlan(alpha);
 
     BStar_FloorPlan.LoadUnit(Unitfile);
     BStar_FloorPlan.LoadNet(Netfile);
 
     BStar_FloorPlan.Init();
+    BStar_FloorPlan.DumpFloorPlan("B*_Init_" + output_name);
 
+    BStar_FloorPlan.Stage0(1e6);
+    BStar_FloorPlan.DumpFloorPlan("B*_Stage0_" + output_name);
 
+    BStar_FloorPlan.Stage1(35000);
+    BStar_FloorPlan.DumpFloorPlan("B*_Stage1_" + output_name);
+    
+    BStar_FloorPlan.Stage2(35000);
+    BStar_FloorPlan.DumpFloorPlan("B*_Stage2_" + output_name);
+
+    int BSTAR_Cost = BStar_FloorPlan.Cost();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
     float runtime = duration.count();
 
-    // SP_FloorPlan.DumpOutput(output, runtime);
+    if(SP_Cost <= BSTAR_Cost) SP_FloorPlan.DumpOutput(output, runtime);
+    else                      BStar_FloorPlan.DumpOutput(output, runtime);
     std::cout << "Execution time: " << runtime << " seconds" << std::endl << std::endl;
 
     return 0;
