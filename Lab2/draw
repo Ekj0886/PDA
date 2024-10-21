@@ -1,9 +1,8 @@
-python3 plot.py
-python3 draw.py floorplan/SP_Init_ami33.txt SP_Init_ami33
-python3 draw.py floorplan/SP_Stage0_ami33.txt SP_Stage0_ami33
-python3 draw.py floorplan/SP_Stage1_ami33.txt SP_Stage1_ami33
-python3 draw.py floorplan/SP_Stage2_ami33.txt SP_Stage2_ami33
-python3 draw.py floorplan/B*_Init_ami33.txt B*_Init_ami33
-python3 draw.py floorplan/B*_Stage0_ami33.txt B*_Stage0_ami33
-python3 draw.py floorplan/B*_Stage1_ami33.txt B*_Stage1_ami33
-python3 draw.py floorplan/B*_Stage2_ami33.txt B*_Stage2_ami33
+python3 draw.py floorplan/SP_Init_vda317b.txt SP_Init_vda317b
+python3 draw.py floorplan/SP_Stage0_vda317b.txt SP_Stage0_vda317b
+python3 draw.py floorplan/SP_Stage1_vda317b.txt SP_Stage1_vda317b
+python3 draw.py floorplan/SP_Stage2_vda317b.txt SP_Stage2_vda317b
+python3 draw.py floorplan/B*_Init_vda317b.txt B*_Init_vda317b
+python3 draw.py floorplan/B*_Stage0_vda317b.txt B*_Stage0_vda317b
+python3 draw.py floorplan/B*_Stage1_vda317b.txt B*_Stage1_vda317b
+python3 draw.py floorplan/B*_Stage2_vda317b.txt B*_Stage2_vda317b

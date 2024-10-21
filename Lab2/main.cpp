@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     outcheck << "./verifier " << alpha << " " << Unitfile << " " << Netfile << " " << output << endl;
     outcheck << "rm " << output << ".HPWL" << endl;
 
-    cout << "<< FloorPlan on case " << output_name << " >>" << endl;
+    cout << endl << "<< FloorPlan on case " << output_name << " >>" << endl;
 
 
     cout << endl << "< SP start >" << endl;
