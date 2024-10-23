@@ -16,10 +16,13 @@ private:
     long long Blk_area;
     string rFlag; // Rotate flag
     SequencePair SP_mem;
-
+    int Best_Cost;
+    SequencePair SP_Best;
+    unordered_map<BLK*, pair<int, int>> Ratio_mem;
+    
 
 public:
-    float alpha; 
+    double alpha; 
     int W, H; // outline width/height
     int Blk_num, Ter_num; // Block and Terminal number
     SequencePair SP;
@@ -27,7 +30,10 @@ public:
     unordered_map<string, TER*> TerminalList;
     vector<NET> NetList;
 
-    SP_FP(float in_alpha) { alpha = in_alpha; rFlag = ""; }
+    std::chrono::time_point<std::chrono::high_resolution_clock> start;
+    std::chrono::time_point<std::chrono::high_resolution_clock> end;
+
+    SP_FP(double in_alpha) { alpha = in_alpha; rFlag = ""; start = std::chrono::high_resolution_clock::now(); }
 
     // Flow function (Defined in SP.h)
     void Walk(); // traverse to random neighborhood structure
@@ -47,6 +53,11 @@ public:
     void DumpFloorPlan(string);
     bool OutofBound() { return W_fp > W || H_fp > H; } // total floorplan exceed of outline
     bool Outside(BLK*); // BLK outside of outline
+    void DumpRatio();
+    void LoadRatio();
+    void SaveBest();
+    void LoadBest();
+    float GetTime();
     
     // Neighborhood action
     void RotateBlk();

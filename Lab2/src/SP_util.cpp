@@ -181,6 +181,44 @@ void SP_FP::GetCoordinate() {
 
 }
 
+void SP_FP::DumpRatio() {
+    for (auto it = BlockList.begin(); it != BlockList.end(); ++it) {
+        BLK* blk = it->S;
+        Ratio_mem[blk] = make_pair(blk->w, blk->h);
+    }
+}
+
+void SP_FP::LoadRatio() {
+    for (auto it = BlockList.begin(); it != BlockList.end(); ++it) {
+        BLK* blk = it->S;
+        pair<int, int> ratio = Ratio_mem[blk];
+        blk->w = ratio.F;
+        blk->h = ratio.S;
+    }
+}
+
+float SP_FP::GetTime() {
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    float runtime = duration.count();
+    return runtime;
+}
+
+void SP_FP::SaveBest() {
+    DumpRatio();
+    Best_Cost = Cost();
+    SP_Best = SP;
+}
+
+void SP_FP::LoadBest() { 
+    LoadRatio();
+    SP = SP_Best;
+    GetCoordinate();
+    cout << "== Load Best" << endl;
+    std::cout << "       Area     : " << (long long)W_fp*H_fp << " ( " << W_fp << ", " << H_fp << " )" << endl;
+    std::cout << "       Wire     : " << Wire() << endl;
+    std::cout << "       Cost     : " << Cost() << endl;
+}
 
 void SP_FP::RotateBlk() {
 
@@ -265,7 +303,7 @@ float SP_FP::OutArea() {
 int SP_FP::Wire() {
 
     GetCoordinate();
-    float wire_length = 0;
+    int wire_length = 0;
     for(auto n : NetList) {
         wire_length += n.HPWL();
     }
@@ -276,12 +314,12 @@ int SP_FP::Wire() {
 int SP_FP::Cost() {
 
     GetCoordinate();
-    float wire_length = 0;
+    double wire_length = 0;
     for(auto n : NetList) {
         wire_length += n.HPWL();
     }
 
-    int cost = floor( (float)(alpha*W_fp*H_fp  + (1.0 - alpha)*wire_length) ); 
+    int cost = floor( (double)(alpha*W_fp*H_fp  + (1.0 - alpha)*wire_length) ); 
 
     return cost; 
 

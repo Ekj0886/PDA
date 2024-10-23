@@ -107,9 +107,6 @@ public:
     void PrintTree();
     void PrintContour();
 
-    
-
-
 };
 
 #endif

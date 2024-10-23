@@ -62,7 +62,9 @@ void SP_FP::Init() {
     std::cout << "       Wire     : " << Wire() << endl;
     std::cout << "       Cost     : " << Cost() << endl;
     std::cout << "       iteration: " << iteration << endl;
+    std::cout << "       RunTime  : " << GetTime() << endl;
 
+    SaveBest();
 }
 
 
@@ -113,8 +115,11 @@ void SP_FP::Stage0(float Temp) { // Place within outline
     std::cout << "       Wire     : " << Wire() << endl;
     std::cout << "       Cost     : " << Cost() << endl;
     std::cout << "       iteration: " << iteration << endl; 
+    std::cout << "       RunTime  : " << GetTime() << endl;
     
     if(OutofBound()) Stage0(Temp * 0.005);
+
+    SaveBest();
 
 }
 
@@ -138,7 +143,7 @@ void SP_FP::Stage1(float Temp) { // Reduce DeadSpace
         iteration ++;
         Walk();
 
-        if(alpha > 0.5) cost_new = DeadSpace();
+        if(alpha >= 0.5) cost_new = DeadSpace();
         else            cost_new = Wire(); 
 
         delta_cost = cost_new - cost;
@@ -160,6 +165,9 @@ void SP_FP::Stage1(float Temp) { // Reduce DeadSpace
             }
         }
         T *= rate;
+
+        if(GetTime() > 295) break;
+
     }
 
     std::cout <<  "== Stage1 Floorplan " << endl;
@@ -167,16 +175,14 @@ void SP_FP::Stage1(float Temp) { // Reduce DeadSpace
     std::cout << "       Wire     : " << Wire() << endl;
     std::cout << "       Cost     : " << Cost() << endl;
     std::cout << "       iteration: " << iteration << endl; 
+    std::cout << "       RunTime  : " << GetTime() << endl;
 
+    SaveBest();
+    
 }
 
 
 void SP_FP::Stage2(float Temp) { // Reduce DeadSpace
-
-    if(alpha == 0 || alpha == 1) {
-        std::cout << "== Stage2 Skipped (Alpha is 0 or 1)" << endl;
-        return;
-    }
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -210,8 +216,7 @@ void SP_FP::Stage2(float Temp) { // Reduce DeadSpace
             cost = cost_new;
         } 
         else {
-            // P = exp( (float) -1 * delta_cost / T );
-            P = 0;
+            P = exp( (float) -1 * delta_cost / T );
             prob = dis(gen);
             if(prob <= P) {
                 cost = cost_new;
@@ -221,15 +226,25 @@ void SP_FP::Stage2(float Temp) { // Reduce DeadSpace
             }
         }
         T *= rate;
+
+        if(GetTime() > 295) break;
     }
+
+    
 
     std::cout <<  "== Stage2 Floorplan " << endl;
     std::cout << "       Area     : " << (long long)W_fp*H_fp << " ( " << W_fp << ", " << H_fp << " )" << endl;
     std::cout << "       Wire     : " << Wire() << endl;
     std::cout << "       Cost     : " << Cost() << endl;
     std::cout << "       iteration: " << iteration << endl; 
+    std::cout << "       RunTime  : " << GetTime() << endl;
 
+    if(Best_Cost >= Cost()) SaveBest();
+
+    if(GetTime() < 295) Stage2(Temp*0.005);
+    
 }
+
 
 void SP_FP::DumpFloorPlan(string file) {
     

@@ -70,6 +70,7 @@ def main():
     # Create a figure, adjust size dynamically to cover all blocks
     fig = plt.figure(figsize=(16, 12))
     ax = fig.add_subplot(111)
+    
 
     # Adjust the axis limits based on min/max values of blocks and outline
     Wl = 0.05*(max_x - min_x)
