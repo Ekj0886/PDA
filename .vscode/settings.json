@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "new": "cpp",
+        "ostream": "cpp",
+        "barrier": "cpp",
+        "chrono": "cpp",
+        "random": "cpp",
+        "latch": "cpp",
+        "limits": "cpp",
+        "semaphore": "cpp",
+        "cmath": "cpp"
+    }
+}

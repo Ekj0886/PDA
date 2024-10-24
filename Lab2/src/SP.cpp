@@ -166,7 +166,7 @@ void SP_FP::Stage1(float Temp) { // Reduce DeadSpace
         }
         T *= rate;
 
-        if(GetTime() > 295) break;
+        if(GetTime() > time_limit) break;
 
     }
 
@@ -227,7 +227,7 @@ void SP_FP::Stage2(float Temp) { // Reduce DeadSpace
         }
         T *= rate;
 
-        if(GetTime() > 295) break;
+        if(GetTime() > time_limit) break;
     }
 
     
@@ -241,7 +241,7 @@ void SP_FP::Stage2(float Temp) { // Reduce DeadSpace
 
     if(Best_Cost >= Cost()) SaveBest();
 
-    if(GetTime() < 295) Stage2(Temp*0.005);
+    if(GetTime() < time_limit) Stage2(Temp*0.005);
     
 }
 

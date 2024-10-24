@@ -13,6 +13,7 @@ std::string GetStringAfterSlash(const std::string& input) {
     return input;
 }
 
+
 int main(int argc, char *argv[]) {
     
     ofstream outdraw("draw");

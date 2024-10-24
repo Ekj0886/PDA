@@ -19,6 +19,7 @@ private:
     int Best_Cost;
     SequencePair SP_Best;
     unordered_map<BLK*, pair<int, int>> Ratio_mem;
+    double time_limit = 295;
     
 
 public:
