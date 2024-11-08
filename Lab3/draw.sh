@@ -1,0 +1,1 @@
+python3 Draw.py Layout/Die.txt Layout_Image/Die.png

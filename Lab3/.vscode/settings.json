@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "iosfwd": "cpp",
+        "span": "cpp",
+        "type_traits": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+}
