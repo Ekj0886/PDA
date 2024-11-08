@@ -22,7 +22,7 @@ void PARSER::parse(LEGALIZER& LGR) {
     LoadParam(LGR);
     LoadDie(LGR);
     LoadCell(LGR);
-    // LoadPlacementRow(LGR);
+    LoadPlacementRow(LGR);
 }
 
 void PARSER::LoadParam(LEGALIZER& LGR) {
@@ -56,13 +56,15 @@ void PARSER::LoadCell(LEGALIZER& LGR) {
 }
 
 void PARSER::LoadPlacementRow(LEGALIZER& LGR) {
-    cout << "load start" << endl;
     string __;
-    CELL* cell = new CELL();
-    LGR.PR.Init(50000, 5000000, 10, 5.5, 5.5);
-    LGR.PR[0].push_back(cell);
-    cout << "load done" << endl;
-    // while(infile >> __) {
-        
-    // }
+    double X, Y, H;
+    int Site_num, Row_num = 1;
+
+    infile >> __ >> X >> Y >> __ >> H >> Site_num;
+    
+    while(infile >> __) {
+        Row_num++;
+    }
+
+    LGR.PR.Init(Row_num, Site_num, H, X, Y);
 } 

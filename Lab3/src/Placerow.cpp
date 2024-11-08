@@ -8,18 +8,20 @@ using namespace std;
 
 // functions defined in header file
 
-void PLACEROW::Init(int row, int site, double h, double xcoor, double ycoor) {
+void PLACEROW::Init(int row, int site, double h, double x, double y) {
     row_num = row;
     site_num = site;
     height = h;
-    x = xcoor;
-    y = ycoor;
+    xcoor = x;
+    ycoor = y;
 
     placement_row.resize(row);
 }
 
-void PLACEROW::PlaceCell(LEGALIZER& LGR) {
-
-    
-
+void PLACEROW::Insert(CELL* cell) {
+    int row = (cell->GetY() - ycoor) / height;
+    // cout << row << endl;
+    placement_row[row].insert(cell);
 }
+
+

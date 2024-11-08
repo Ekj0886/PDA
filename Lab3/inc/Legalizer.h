@@ -28,6 +28,7 @@ public:
 
     // function
     void parse(string&);
+    void PlaceCell();
 
     void DumpLayout(string);
     

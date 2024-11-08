@@ -8,8 +8,6 @@
 
 using namespace std;
 
-class LEGALIZER;
-
 class PLACEROW {
 
 private:
@@ -19,18 +17,18 @@ public:
     int row_num;
     int site_num;
     double height;
-    double x, y;
+    double xcoor, ycoor;
     
-    vector<vector<CELL*>> placement_row;
+    vector<set<CELL*>> placement_row;
 
-
+    
     // function
-    vector<CELL*>& operator[](size_t index) {
+    set<CELL*>& operator[](size_t index) {
         return placement_row[index];
     }
 
     void Init(int row, int site, double h, double x, double y);
-    void PlaceCell(LEGALIZER& LGR);
+    void Insert(CELL* cell);
     
 };
 

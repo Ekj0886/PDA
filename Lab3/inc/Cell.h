@@ -20,6 +20,11 @@ public:
     CELL(string, double, double, double, double, bool);
     ~CELL();
 
+    // bool compare
+    bool operator<(const CELL& cell) const {
+        return x < cell.x;  // Sorting by 'x'
+    }
+
     // setup function
     void SetXY(double, double);
 

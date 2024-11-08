@@ -14,15 +14,16 @@ int main(int argc, char *argv[]) {
 
     LEGALIZER LGR;
     LGR.parse(input_lg);
-    cout << LGR.alpha << " " << LGR.beta << endl;
-    cout << LGR.Die.lowerX << " " << LGR.Die.lowerY << endl;
-    cout << fixed << LGR.Die.upperX << " " << LGR.Die.upperY << endl;
+    LGR.PlaceCell();
+    // cout << LGR.alpha << " " << LGR.beta << endl;
+    // cout << LGR.Die.lowerX << " " << LGR.Die.lowerY << endl;
+    // cout << fixed << LGR.Die.upperX << " " << LGR.Die.upperY << endl;
 
-    double x = 10;
-    double y = 0.3;
-    cout << (x / y == (int)(x / y)) << endl;
+    // double x = 10;
+    // double y = 0.3;
+    // cout << (x / y == (int)(x / y)) << endl;
 
-    LGR.DumpLayout("Layout/Die.txt");
+    // LGR.DumpLayout("Layout/Die.txt");
     return 0;
 
 }
