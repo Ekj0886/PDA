@@ -33,6 +33,7 @@ void PARSER::LoadParam(LEGALIZER& LGR) {
 void PARSER::LoadDie(LEGALIZER& LGR) {
     string __;
     infile >> __ >> LGR.Die.lowerX >> LGR.Die.lowerY >> LGR.Die.upperX >> LGR.Die.upperY;
+    LGR.PR.Die = LGR.Die;
 }
 
 void PARSER::LoadCell(LEGALIZER& LGR) {
@@ -58,13 +59,11 @@ void PARSER::LoadCell(LEGALIZER& LGR) {
 void PARSER::LoadPlacementRow(LEGALIZER& LGR) {
     string __;
     double X, Y, H;
-    int Site_num, Row_num = 1;
+    int Site_num, Row_num = 0;
 
     infile >> __ >> X >> Y >> __ >> H >> Site_num;
-    
-    while(infile >> __) {
-        Row_num++;
-    }
+
+    while(getline(infile, __)) { Row_num++; }
 
     LGR.PR.Init(Row_num, Site_num, H, X, Y);
 } 

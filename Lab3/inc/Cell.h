@@ -7,6 +7,11 @@
 
 using namespace std;
 
+struct DIE {
+    double lowerX, lowerY;
+    double upperX, upperY;
+};
+
 class CELL {
 
 private:
@@ -20,22 +25,20 @@ public:
     CELL(string, double, double, double, double, bool);
     ~CELL();
 
-    // bool compare
-    bool operator<(const CELL& cell) const {
-        return x < cell.x;  // Sorting by 'x'
-    }
+    bool merge;
 
     // setup function
     void SetXY(double, double);
 
     // get function
-    string GetName() { return name; }
-    double GetW() { return w; }
-    double GetH() { return h; }
-    double GetX() { return x; }
-    double GetY() { return y; }
-    bool   Fix() { return fix; }
-    
+    string GetName() const { return name; }
+    double GetW() const { return w; }
+    double GetH() const { return h; }
+    double LEFT() const { return x; }
+    double DOWN() const { return y; }
+    double RIGHT() const { return x + GetW(); }
+    double TOP() const { return y + GetH(); }
+    bool   Fix() const { return fix; }
 };
 
 

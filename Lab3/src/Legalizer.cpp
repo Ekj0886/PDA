@@ -11,8 +11,8 @@ void LEGALIZER::parse(string& file_name) {
     this->file = file_name;
     PARSER Parser(file);
     Parser.parse(*this);
-    cout << "# of Cell: " << Cellmap.size() << endl;
-    cout << "# of PRow: " << PR.row_num << " " << PR.site_num << endl; 
+    cout << "== # of Cell: " << Cellmap.size() << endl;
+    cout << "== # of PRow: " << PR.row_num << " " << PR.site_num << endl; 
 }
 
 void LEGALIZER::PlaceCell() {
@@ -22,15 +22,52 @@ void LEGALIZER::PlaceCell() {
     }
 }
 
-void LEGALIZER::DumpLayout(string file) {
+void LEGALIZER::RunOpt(string& opt_file) {
 
+    ifstream opt(opt_file); 
+    string __;
+    
+    while(opt >> __) {
+    // opt >> __;
+
+        string cell_name;
+        double x, y, w, h;
+
+        while(opt >> cell_name) {
+            if(cell_name == "-->") break;
+            CELL* cell = Cellmap[cell_name];
+            PR.Remove(cell);
+            delete cell;
+            Cellmap.erase(cell_name);
+        }
+
+        opt >> cell_name >> x >> y >> w >> h;
+        CELL* merge_cell = new CELL(cell_name, x, y, w, h, 0);
+        merge_cell->merge = true;
+        if(!PR.Legal(merge_cell)) Legalize(merge_cell);
+        Cellmap[cell_name] = merge_cell;
+        
+    }
+
+    cout << "== Final Cell Num " << Cellmap.size() << endl;
+
+}   
+
+
+void LEGALIZER::Legalize(CELL* cell) {
+    int row_num = cell->GetH() / PR.height;
+    // cout << row_num << endl;
+    // cout << cell->GetName() << endl;
+}
+
+void LEGALIZER::DumpLayout(string file) {
     ofstream outfile(file);
 
     outfile << fixed << Die.lowerX << " " << Die.lowerY << " " << Die.upperX << " " << Die.upperY << endl;
     
     for (auto& cptr : Cellmap) {
         CELL* cell = cptr.S;
-        outfile << fixed << cell->GetX() << " " << cell->GetY() << " " << cell->GetW() << " " << cell->GetH() << " " << cell->Fix() << endl;
+        outfile << fixed << cell->LEFT() << " " << cell->DOWN() << " " << cell->GetW() << " " << cell->GetH() << " " << cell->Fix() << " " << cell->merge << endl;
     }
-
+    cout << "== Dump Layout" << endl;
 }

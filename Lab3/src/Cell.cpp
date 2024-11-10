@@ -16,6 +16,7 @@ CELL::CELL(string cellname, double X, double Y, double width, double height, boo
     w = width;
     h = height;
     fix = Fix;
+    merge = false;
 }
 
 CELL::~CELL() { }

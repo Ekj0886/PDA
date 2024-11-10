@@ -8,28 +8,38 @@
 
 using namespace std;
 
-class PLACEROW {
+struct CompareByX {
+    bool operator()(const CELL* a, const CELL* b) const {
+        return a->LEFT() < b->LEFT();
+    }
+};
 
-private:
-    
-    
+class PLACEROW {
+  
 public:
+    DIE Die;
     int row_num;
     int site_num;
     double height;
     double xcoor, ycoor;
     
-    vector<set<CELL*>> placement_row;
+    vector<set<CELL*, CompareByX>> placement_row;
 
-    
-    // function
-    set<CELL*>& operator[](size_t index) {
+    // operator overwrite
+    set<CELL*, CompareByX>& operator[](size_t index) {
         return placement_row[index];
     }
 
+    // major function 
     void Init(int row, int site, double h, double x, double y);
     void Insert(CELL* cell);
+    void Remove(CELL* cell);
+    pair<int, int> Search(int row); 
     
+    // helper function
+    int GetRow(double y);
+    bool Legal(CELL* cell);
+    void PrintRow(int row);
 };
 
 #endif

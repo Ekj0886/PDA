@@ -10,16 +10,11 @@
 
 using namespace std;
 
-struct DIE {
-    double lowerX, lowerY;
-    double upperX, upperY;
-};
-
 class LEGALIZER {
 
 public:
     string file;
-    
+
     double alpha, beta;
     DIE Die;
 
@@ -29,6 +24,8 @@ public:
     // function
     void parse(string&);
     void PlaceCell();
+    void RunOpt(string&);
+    void Legalize(CELL*);
 
     void DumpLayout(string);
     
