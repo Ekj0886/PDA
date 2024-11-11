@@ -27,10 +27,7 @@ void LEGALIZER::RunOpt(string& opt_file) {
     ifstream opt(opt_file); 
     string __;
 
-    // PR.PrintPR();
-    // cout << endl;
-
-    int num = 0;
+    int legal_num = 0, illegal_num = 0;
     while(opt >> __) {
     // opt >> __;
 
@@ -45,21 +42,25 @@ void LEGALIZER::RunOpt(string& opt_file) {
             Cellmap.erase(cell_name);
         }
 
-        // PR.PrintPR();
-        // cout << endl;
-
         opt >> cell_name >> x >> y >> w >> h;
         CELL* merge_cell = new CELL(cell_name, x, y, w, h, 0);
         merge_cell->merge = true;
         
         if(!PR.Legal(merge_cell)) {
-            Legalize(merge_cell);
-            // cout << "illegal" << endl;
+            // PR.FindVacant(merge_cell);
+            if(PR.FindVacant(merge_cell)) {
+                legal_num++;
+                AddCell(merge_cell);
+            }
+            else {
+                // illegal_num++;
+                PR.DumbFill(merge_cell);
+                AddCell(merge_cell);
+                legal_num++;
+            }
         } else {
-            // cout << "Legal" << endl;
-            num++;
-            PR.Insert(merge_cell);
-            Cellmap[cell_name] = merge_cell;
+            legal_num++;
+            AddCell(merge_cell);
         } 
 
         // Cellmap[cell_name] = merge_cell;
@@ -67,20 +68,42 @@ void LEGALIZER::RunOpt(string& opt_file) {
     }
 
     cout << "== Final Cell Num " << Cellmap.size() << endl;
-    cout << "== Legal number: " << num << endl;
-    // PR.test(); 
-
-    // PR.PrintPR();
-    // cout << endl;
+    cout << "== Legal number  : " << legal_num << endl;
+    cout << "== ILLegal number: " << illegal_num << endl;
 
 }   
 
+void LEGALIZER::AddCell(CELL* cell) {
+    PR.Insert(cell);
+    Cellmap[cell->GetName()] = cell;
+}
 
 void LEGALIZER::Legalize(CELL* cell) {
     // int row_num = cell->GetH() / PR.height;
-    // cout << row_num << endl;
-    // cout << cell->GetName() << endl;
+    // if(PR.FindVacant()) {
+
+    // }
+    
 }
+
+// bool LEGALIZER::FindVacant(CELL* cell) {
+//     BOUND bound = PR.GetBound(cell);
+//     CELL* Ucell = bound.Ucell;
+//     CELL* Lcell = bound.Lcell;
+
+//     while(!Ucell->pseudo || !Lcell->pseudo) {
+//         if(!Ucell->pseudo) {
+//             cell->SetXY(Ucell->RIGHT(), cell->DOWN());
+//             if(PR.Legal(cell)) return true;
+//             else Ucell++;
+//         }
+//         if(!Lcell->pseudo) {
+//             cell->SetXY(Ucell->LEFT(), cell->DOWN());
+//             if(PR.Legal(cell)) return true;
+//             else Lcell = prev(Lcell);
+//         }
+//     }
+// }
 
 void LEGALIZER::DumpLayout(string file) {
     ofstream outfile(file);

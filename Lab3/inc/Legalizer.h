@@ -25,7 +25,9 @@ public:
     void parse(string&);
     void PlaceCell();
     void RunOpt(string&);
+    void AddCell(CELL*);
     void Legalize(CELL*);
+    // bool FindVacant(CELL*);
 
     void DumpLayout(string);
     

@@ -15,6 +15,7 @@ struct CompareByX {
 };
 
 using RowIterator = std::optional<std::set<CELL*, CompareByX>::iterator>;
+using Rptr = std::set<CELL*, CompareByX>::iterator;
 
 class PLACEROW {
   
@@ -26,6 +27,8 @@ public:
     double xcoor, ycoor;
     
     vector<set<CELL*, CompareByX>> placement_row;
+    vector<double> space;
+
 
     // operator overwrite
     set<CELL*, CompareByX>& operator[](size_t index) {
@@ -36,12 +39,18 @@ public:
     void Init(int row, int site, double h, double x, double y);
     void Insert(CELL* cell);
     void Remove(CELL* cell);
-    pair<int, int> Search(int row); 
-    
+    bool FindVacant(CELL*);
+    bool SingleVacant(CELL*);
+    void DumbFill(CELL*);
+
     // helper function
     int GetRow(double y);
-    bool Legal(CELL* cell);
-    double TopRow() { return ycoor + height*(row_num-1); }
+    int GetTrack(CELL*); // get cell height in # of row
+    bool Legal(CELL*);
+    bool InBound(int);
+    double TOP() { return ycoor + height*(row_num-1); }
+    double LEFT() { return xcoor; }
+    double RIGHT() { return xcoor + site_num - 1; }
     void PrintRow(int row);
     void PrintPR();
 

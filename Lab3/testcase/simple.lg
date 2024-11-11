@@ -1,6 +1,6 @@
 Alpha 10000
 Beta 1
-DieSize 0 0 11 11
+DieSize 0 0 20 20
 FF0 0 0 2 1 FIX
 FF1 3 0 2 1 NOTFIX
 FF2 6 0 2 1 NOTFIX
