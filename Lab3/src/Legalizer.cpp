@@ -26,7 +26,11 @@ void LEGALIZER::RunOpt(string& opt_file) {
 
     ifstream opt(opt_file); 
     string __;
-    
+
+    // PR.PrintPR();
+    // cout << endl;
+
+    int num = 0;
     while(opt >> __) {
     // opt >> __;
 
@@ -41,21 +45,39 @@ void LEGALIZER::RunOpt(string& opt_file) {
             Cellmap.erase(cell_name);
         }
 
+        // PR.PrintPR();
+        // cout << endl;
+
         opt >> cell_name >> x >> y >> w >> h;
         CELL* merge_cell = new CELL(cell_name, x, y, w, h, 0);
         merge_cell->merge = true;
-        if(!PR.Legal(merge_cell)) Legalize(merge_cell);
-        Cellmap[cell_name] = merge_cell;
+        
+        if(!PR.Legal(merge_cell)) {
+            Legalize(merge_cell);
+            // cout << "illegal" << endl;
+        } else {
+            // cout << "Legal" << endl;
+            num++;
+            PR.Insert(merge_cell);
+            Cellmap[cell_name] = merge_cell;
+        } 
+
+        // Cellmap[cell_name] = merge_cell;
         
     }
 
     cout << "== Final Cell Num " << Cellmap.size() << endl;
+    cout << "== Legal number: " << num << endl;
+    // PR.test(); 
+
+    // PR.PrintPR();
+    // cout << endl;
 
 }   
 
 
 void LEGALIZER::Legalize(CELL* cell) {
-    int row_num = cell->GetH() / PR.height;
+    // int row_num = cell->GetH() / PR.height;
     // cout << row_num << endl;
     // cout << cell->GetName() << endl;
 }

@@ -25,7 +25,7 @@ public:
     CELL(string, double, double, double, double, bool);
     ~CELL();
 
-    bool merge;
+    bool merge, pseudo;
 
     // setup function
     void SetXY(double, double);

@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     LGR.PlaceCell();
     LGR.RunOpt(input_opt);
     
-    // LGR.DumpLayout("Layout/Die.txt");
+    LGR.DumpLayout("Layout/Die.txt");
     return 0;
 
 }

@@ -14,6 +14,8 @@ struct CompareByX {
     }
 };
 
+using RowIterator = std::optional<std::set<CELL*, CompareByX>::iterator>;
+
 class PLACEROW {
   
 public:
@@ -39,7 +41,15 @@ public:
     // helper function
     int GetRow(double y);
     bool Legal(CELL* cell);
+    double TopRow() { return ycoor + height*(row_num-1); }
     void PrintRow(int row);
+    void PrintPR();
+
+    RowIterator Xs(int row, double x);
+    RowIterator Xe(int row, double x);
+
+    void test();
+
 };
 
 #endif
