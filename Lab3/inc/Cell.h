@@ -7,11 +7,6 @@
 
 using namespace std;
 
-struct DIE {
-    double lowerX, lowerY;
-    double upperX, upperY;
-};
-
 class CELL {
 
 private:

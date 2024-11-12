@@ -177,10 +177,12 @@ bool PLACEROW::FindVacant(CELL* cell) {
         Rptr rptr = q.front();
         q.pop_front();
         
-        if(!(*rptr)->pseudo) {
-            cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
+        // if(!(*rptr)->pseudo) {
+        if((*rptr)->GetName() != "R") {
+            if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
+            else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
             if(Legal(cell)) return true;
-            else {
+            else if(!(*rptr)->pseudo){
                 if(cell->LEFT() > x_origin) rptr++;
                 else rptr = prev(rptr);
                 q.push_back(rptr);   
@@ -211,10 +213,12 @@ bool PLACEROW::SingleVacant(CELL* cell) {
         Rptr rptr = q.front();
         q.pop_front();
         
-        if(!(*rptr)->pseudo) {
-            cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
+        // if(!(*rptr)->pseudo) {
+        if((*rptr)->GetName() != "R") {
+            if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
+            else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
             if(Legal(cell)) return true;
-            else {
+            else if(!(*rptr)->pseudo){
                 if(cell->LEFT() > x_origin) rptr++;
                 else rptr = prev(rptr);
                 q.push_back(rptr);   
@@ -230,37 +234,30 @@ bool PLACEROW::InBound(int row) {
     return (row >= 0 && row < row_num);
 }
 
-void PLACEROW::DumbFill(CELL* cell) {
+bool PLACEROW::DumbFill(CELL* cell) {
     // cout << "Dumbfill" << endl;
     int row = GetRow(cell->DOWN());
     int range = max(row, row_num-row);
     int new_row; 
 
-    // for(int r = 0; r < row_num; r++) {
-    //     if( space[r] > cell->GetW() ) {
-    //         cell->SetXY(cell->LEFT(), ycoor + r*height);
-    //         if(SingleVacant(cell)) return;
-    //     }
-    // }
-
-    for(int r = GetTrack(cell); r < range; r++) {
+    for(int r = GetTrack(cell); r < range; r += 2*GetTrack(cell)) {
 
         new_row = row + r;
 
-        if( space[r] > cell->GetW() && InBound(new_row) ) {
+        if( space[r] > 10*cell->GetW() && InBound(new_row) ) {
             cell->SetXY(cell->LEFT(), ycoor + new_row*height);
-            if(SingleVacant(cell)) return;
+            if(SingleVacant(cell)) return true;
         }
         
         new_row = row - r;
 
-        if( space[r] > cell->GetW() && InBound(new_row) ) {
+        if( space[r] > 10*cell->GetW() && InBound(new_row) ) {
             cell->SetXY(cell->LEFT(), ycoor + new_row*height);
-            if(SingleVacant(cell)) return;
+            if(SingleVacant(cell)) return true;
         }
 
     }
-    cout << "Fail" << endl;
+    return false;
 }
 
 void PLACEROW::test() {

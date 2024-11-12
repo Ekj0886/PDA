@@ -2,20 +2,12 @@
 #define PLACEROW_H
 #include <bits/stdc++.h>
 #include "Cell.h"
+#include "Type.h"
 
 #define F first 
 #define S second
 
 using namespace std;
-
-struct CompareByX {
-    bool operator()(const CELL* a, const CELL* b) const {
-        return a->LEFT() < b->LEFT();
-    }
-};
-
-using RowIterator = std::optional<std::set<CELL*, CompareByX>::iterator>;
-using Rptr = std::set<CELL*, CompareByX>::iterator;
 
 class PLACEROW {
   
@@ -41,7 +33,7 @@ public:
     void Remove(CELL* cell);
     bool FindVacant(CELL*);
     bool SingleVacant(CELL*);
-    void DumbFill(CELL*);
+    bool DumbFill(CELL*);
 
     // helper function
     int GetRow(double y);

@@ -29,7 +29,6 @@ void LEGALIZER::RunOpt(string& opt_file) {
 
     int legal_num = 0, illegal_num = 0;
     while(opt >> __) {
-    // opt >> __;
 
         string cell_name;
         double x, y, w, h;
@@ -54,9 +53,13 @@ void LEGALIZER::RunOpt(string& opt_file) {
             }
             else {
                 // illegal_num++;
-                PR.DumbFill(merge_cell);
-                AddCell(merge_cell);
-                legal_num++;
+                if(PR.DumbFill(merge_cell)) {
+                    AddCell(merge_cell);
+                    legal_num++;
+                }
+                else {
+                    illegal_num++;
+                }
             }
         } else {
             legal_num++;

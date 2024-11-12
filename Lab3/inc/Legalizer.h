@@ -4,6 +4,7 @@
 #include "Cell.h"
 #include "Parser.h"
 #include "Placerow.h"
+#include "Type.h"
 
 #define F first 
 #define S second
