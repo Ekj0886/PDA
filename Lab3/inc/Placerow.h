@@ -21,7 +21,7 @@ public:
     vector<Set*> placement_row;
     vector<double> space;
     vector<double> Xseg; // start point of segment
-
+    hello
     // operator overwrite
     Set& operator[](size_t index) {
         return *placement_row[index];
