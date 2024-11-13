@@ -14,11 +14,21 @@ struct CompareByX {
 
 using Set = set<CELL*, CompareByX>;
 using RowIterator = std::optional<std::set<CELL*, CompareByX>::iterator>;
-using Rptr = std::set<CELL*, CompareByX>::iterator;
+using Rptr = std::vector<CELL*>::iterator;
 
 struct DIE {
     double lowerX, lowerY;
     double upperX, upperY;
+};
+
+struct BoundCell {
+    CELL* Ucell;
+    CELL* Lcell;
+};
+
+struct BoundPtr {
+    Rptr Uptr;
+    Rptr Lptr;
 };
 
 class WINDOW {

@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     LEGALIZER LGR;
     LGR.parse(input_lg);
     LGR.PlaceCell();
-    // LGR.RunOpt(input_opt);
+    LGR.RunOpt(input_opt);
     
 
 

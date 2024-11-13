@@ -16,8 +16,49 @@ int PLACEROW::GetTrack(CELL* cell) {
     return cell->GetH() / height;
 }
 
-bool PLACEROW::Legal(CELL* cell) {
+// BoundCell PLACEROW::Bcell(int row, CELL* cell) {
+//     BoundCell B;
+//     cout << "Start B" << endl;
+//     auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
+//         [](const CELL* c, double value) {
+//             return c->LEFT() < value;
+//         });
 
+//     auto lptr = (uptr == P_Row[row].begin()) ? uptr : uptr - 1;
+
+//     B.Ucell = (uptr == P_Row[row].end()) ? nullptr : *uptr;
+//     B.Lcell = *lptr;
+//     cout << "End Bcell" << endl;
+//     return B;
+// }
+
+
+BoundCell PLACEROW::Bcell(int row, CELL* cell) {
+    BoundCell B;
+    // cout << "B start" << endl;
+    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
+                [](const CELL* c, double value) {
+                return c->LEFT() < value; });
+    // cout << "ptr get" << endl;
+    auto lptr = uptr-1;
+    B.Ucell = *uptr;
+    B.Lcell = *lptr;
+    return B; 
+}
+
+BoundPtr PLACEROW::BIndex(int row, CELL* cell) {
+    BoundPtr B;
+    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
+                [](const CELL* c, double value) {
+                return c->LEFT() < value; });
+
+    auto lptr = uptr-1;
+    B.Uptr = uptr;
+    B.Lptr = lptr;
+    return B;
+}
+
+bool PLACEROW::Legal(CELL* cell) {
     // fix cell y if not on site
     if((double)((cell->DOWN() - ycoor) / height) != (int)((cell->DOWN() - ycoor) / height) ) {
         cout << "Tweak y" << endl;
@@ -32,21 +73,13 @@ bool PLACEROW::Legal(CELL* cell) {
     if(cell->LEFT() < xcoor || cell->LEFT() > xcoor + site_num - 1) return false;
     
     // check overlap
-    double y = cell->DOWN();
-    while(y < cell->TOP() && y <= TOP()) {
-        int row = GetRow(y);
-
-        Rptr ub = RowSet(row)->lower_bound(cell);
-        Rptr lb = prev(ub);
-
-        CELL* ub_cell = *ub;
-        CELL* lb_cell = *lb;
+    for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
+        // if(!InBound(row)) cout << "not inbound" << endl;
+        BoundCell B = Bcell(row, cell);
         
-        // Check if an upper bound & lower bound
-        if(!lb_cell->pseudo && lb_cell->RIGHT() > cell->LEFT()) return false;
-        if(!ub_cell->pseudo && ub_cell->LEFT() < cell->RIGHT()) return false;
-
-        y += height;
+        // Check cell upper bound & lower bound
+        if(!B.Lcell->pseudo && B.Lcell->RIGHT() > cell->LEFT()) return false;
+        if(!B.Ucell->pseudo && B.Ucell->LEFT() < cell->RIGHT()) return false;
     }
 
     return true;
@@ -69,28 +102,13 @@ bool PLACEROW::SRLegal(CELL* cell) {
     if(cell->LEFT() < xcoor || cell->LEFT() > xcoor + site_num - 1) return false;
     
     // check overlap
-    double y = cell->DOWN();
-    while(y < cell->TOP() && y <= TOP()) {
-        int row = GetRow(y);
-
-        Rptr ub = RowSet(row)->lower_bound(cell);
-        Rptr lb = prev(ub);
-
-        CELL* ub_cell = *ub;
-        CELL* lb_cell = *lb;
-
-        bool ub_sr = (ub_cell->GetH() > height) || (ub_cell->Fix());
-        bool lb_sr = (lb_cell->GetH() > height) || (lb_cell->Fix());
-
-        // Check if an upper bound & lower bound
-        if(!lb_cell->pseudo && lb_cell->RIGHT() > cell->LEFT()) {
-            if(lb_sr) return false;
-        }
-        if(!ub_cell->pseudo && ub_cell->LEFT() < cell->RIGHT()) {
-            if(ub_sr) return false;
-        }
-
-        y += height;
+    for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
+        BoundCell B = Bcell(row, cell);
+        bool Umult = (B.Ucell->GetH() > height) || (B.Ucell->Fix());
+        bool Lmult = (B.Lcell->GetH() > height) || (B.Lcell->Fix());
+        // Check cell upper bound & lower bound
+        if(!B.Lcell->pseudo && (B.Lcell->RIGHT() > cell->LEFT() || Lmult)) return false;
+        if(!B.Ucell->pseudo && (B.Ucell->LEFT() < cell->RIGHT() || Umult)) return false;
     }
 
     return true;
@@ -100,11 +118,11 @@ bool PLACEROW::SRLegal(CELL* cell) {
 
 void PLACEROW::PrintRow(int row) {
     cout << row << ": ";
-    if(RowSet(row)->empty()) {
+    if(P_Row[row].empty()) {
         cout << "EMPTY" << endl;
         return; 
     }
-    for(const auto& c : *RowSet(row)) {
+    for(auto c : P_Row[row]) {
         cout << "(" << c->LEFT() << ", " << c->RIGHT() << ") ";
     }cout << endl;
 }
@@ -118,7 +136,6 @@ void PLACEROW::PrintPR() {
 
 
 
-
 void PLACEROW::Init(int row, int site, double h, double x, double y) {
     row_num = row;
     site_num = site;
@@ -126,30 +143,31 @@ void PLACEROW::Init(int row, int site, double h, double x, double y) {
     xcoor = x;
     ycoor = y;
 
-    placement_row.resize(row);
+    P_Row.resize(row);
     space.resize(row);
     CELL* pseudo_cell_left = new CELL("L", xcoor-1, 0, 1, 0, 1);
     CELL* pseudo_cell_right = new CELL("R", xcoor + site_num - 1, 0, 1, 0, 1);
     pseudo_cell_left->pseudo = true; 
     pseudo_cell_right->pseudo = true;
     for(int r = 0; r < row; r++) {
-        placement_row[r] = new set<CELL*, CompareByX>();
-        RowSet(r)->insert(pseudo_cell_left);
-        RowSet(r)->insert(pseudo_cell_right);
+        P_Row[r].push_back(pseudo_cell_left);
+        P_Row[r].push_back(pseudo_cell_right);
         space[r] = site_num;
     }
 }
 
 
-
 void PLACEROW::Insert(CELL* cell) {
-    double y = cell->DOWN();
-    while(y < cell->TOP() && y <= TOP()) {
-        int row = GetRow(y);
-        RowSet(row)->insert(cell);
-        // space[row] -= cell->GetW();
-        y += height;
+
+    for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
+        auto vptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell,
+            [](CELL* a, CELL* b) {
+                return a->LEFT() < b->LEFT();
+            });
+        
+        P_Row[row].insert(vptr, cell);
     }
+
 }
 
 void PLACEROW::Remove(CELL* cell) {
@@ -157,18 +175,22 @@ void PLACEROW::Remove(CELL* cell) {
         cout << "Cell fixed, can't remove" << endl;
         return;
     }
-    double y = cell->DOWN();
-    while(y < cell->TOP() && y <= TOP()) {
-        int row = GetRow(y);
-        RowSet(row)->erase(cell);
-        // space[row] += cell->GetW();
-        y += height;
+
+    for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
+        auto vptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell,
+            [](CELL* a, CELL* b) {
+                return a->LEFT() < b->LEFT();
+            });
+        
+        P_Row[row].erase(vptr);
     }
 }
 
 
 bool PLACEROW::FindVacant(CELL* cell) {
-    // cout << "== Find Vacant" << endl;
+    
+    // cout << "Load Vacant" << endl;
+
     int track = GetTrack(cell);
     int row = GetRow(cell->DOWN());
 
@@ -176,8 +198,9 @@ bool PLACEROW::FindVacant(CELL* cell) {
     
     deque<Rptr> q;
 
-    Rptr ub = RowSet(row)->lower_bound(cell);
-    Rptr lb = prev(ub);
+    BoundPtr Bptr = BIndex(row, cell);
+    Rptr ub = Bptr.Uptr;
+    Rptr lb = Bptr.Lptr;
 
     q.push_back(ub);
     q.push_back(lb);
@@ -187,36 +210,50 @@ bool PLACEROW::FindVacant(CELL* cell) {
         int Lrow = row - i;
 
         if(Urow < row_num && Urow >= 0) {
-            Rptr u = RowSet(Urow)->lower_bound(cell);
-            Rptr l = prev(u);
-            q.push_back(u);
-            q.push_back(l);
+            Bptr = BIndex(Urow, cell);
+            ub = Bptr.Uptr;
+            lb = Bptr.Lptr;
+            q.push_back(ub);
+            q.push_back(lb);
         }
 
         if(Lrow >= 0 && Lrow < row_num) {
-            Rptr u = RowSet(Lrow)->lower_bound(cell);
-            Rptr l = prev(u);
-            q.push_back(u);
-            q.push_back(l);
+            Bptr = BIndex(Lrow, cell);
+            ub = Bptr.Uptr;
+            lb = Bptr.Lptr;
+            q.push_back(ub);
+            q.push_back(lb);
         }
     }
-
 
     while(!q.empty()) {
         Rptr rptr = q.front();
         q.pop_front();
-        
+
+        // cout << "Name: " << endl;
+        // cout << (*rptr)->GetName() << endl;
+
         if((*rptr)->GetName() != "R") {
+
             if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
-            else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
-            if(Legal(cell)) return true;
+            else                           cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
+            
+            if(Legal(cell)) {
+                // cout << "Found" << endl;
+                return true;
+            }
             else if(!(*rptr)->pseudo){
+                // cout << "check" << " " << (*rptr)->pseudo << endl;
                 if(cell->LEFT() > x_origin) rptr++;
-                else rptr = prev(rptr);
+                else rptr = rptr - 1;
                 q.push_back(rptr);   
             }
+
         }
     }
+
+    // cout << "Not Found" << endl;
+
     cell->SetXY(x_origin, y_origin);
     return false;
 
@@ -230,8 +267,9 @@ bool PLACEROW::SingleVacant(CELL* cell) {
     
     deque<Rptr> q;
 
-    Rptr ub = RowSet(row)->lower_bound(cell);
-    Rptr lb = prev(ub);
+    BoundPtr Bptr = BIndex(row, cell);
+    Rptr ub = Bptr.Uptr;
+    Rptr lb = Bptr.Lptr;
 
     q.push_back(ub);
     q.push_back(lb);
@@ -242,16 +280,22 @@ bool PLACEROW::SingleVacant(CELL* cell) {
         q.pop_front();
         
         if((*rptr)->GetName() != "R") {
+
             if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
-            else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
-            if(Legal(cell)) return true;
+            else                           cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
+            
+            if(Legal(cell)) {
+                return true;
+            }
             else if(!(*rptr)->pseudo){
                 if(cell->LEFT() > x_origin) rptr++;
                 else rptr = prev(rptr);
                 q.push_back(rptr);   
             }
+
         }
     }
+
     cell->SetXY(x_origin, y_origin);
     return false;
 
@@ -296,8 +340,9 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
     
     deque<Rptr> q;
 
-    Rptr ub = RowSet(row)->lower_bound(cell);
-    Rptr lb = prev(ub);
+    BoundPtr Bptr = BIndex(row, cell);
+    Rptr ub = Bptr.Uptr;
+    Rptr lb = Bptr.Lptr;
 
     q.push_back(ub);
     q.push_back(lb);
@@ -307,17 +352,19 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
         int Lrow = row - i;
 
         if(Urow < row_num && Urow >= 0) {
-            Rptr u = RowSet(Urow)->lower_bound(cell);
-            Rptr l = prev(u);
-            q.push_back(u);
-            q.push_back(l);
+            Bptr = BIndex(Urow, cell);
+            ub = Bptr.Uptr;
+            lb = Bptr.Lptr;
+            q.push_back(ub);
+            q.push_back(lb);
         }
 
         if(Lrow >= 0 && Lrow < row_num) {
-            Rptr u = RowSet(Lrow)->lower_bound(cell);
-            Rptr l = prev(u);
-            q.push_back(u);
-            q.push_back(l);
+            Bptr = BIndex(Lrow, cell);
+            ub = Bptr.Uptr;
+            lb = Bptr.Lptr;
+            q.push_back(ub);
+            q.push_back(lb);
         }
     }
 
@@ -327,14 +374,17 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
         q.pop_front();
         
         if((*rptr)->GetName() != "R") {
+
             if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
-            else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
+            else                           cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
+            
             if(SRLegal(cell)) return true;
             else if(!(*rptr)->pseudo){
                 if(cell->LEFT() > x_origin) rptr++;
                 else rptr = prev(rptr);
                 q.push_back(rptr);   
             }
+
         }
     }
     cell->SetXY(x_origin, y_origin);
@@ -354,10 +404,10 @@ bool PLACEROW::Legalize(CELL* cell) {
 // //  Right hand side legalization
 
 //     // load SRcell information
-//     for(int row = GetRow(cell->DOWN()); row <= GetRow(cell->TOP()); row++) {
+//     for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
         
 //         x[row] = cell->RIGHT();
-//         Rptr ub = RowSet(row)->lowerbound(cell);
+//         Rptr ub = P_Row[row]->lowerbound(cell);
 //         CELL* ucell = (*ub);
 //         while(!ucell->pseudo) {
 //             if(!ucell->Fix() && GetTrack(ucell) == 1) {
@@ -371,7 +421,7 @@ bool PLACEROW::Legalize(CELL* cell) {
 //     }
 
 //     // start legalize
-//     for(int row = GetRow(cell->DOWN()); row <= GetRow(cell->TOP()); row++) {
+//     for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
 
 //         while(!SRcell[row].empty()) {
 

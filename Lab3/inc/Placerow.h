@@ -18,19 +18,19 @@ public:
     double height;
     double xcoor, ycoor;
     
-    vector<Set*> placement_row;
+    vector<vector<CELL*>> P_Row;
     vector<double> space;
     vector<double> Xseg; // start point of segment
-    hello
+    
     // operator overwrite
-    Set& operator[](size_t index) {
-        return *placement_row[index];
+    vector<CELL*>& operator[](size_t index) {
+        return P_Row[index];
     }
 
     // major function 
     void Init(int row, int site, double h, double x, double y);
-    void Insert(CELL* cell);
-    void Remove(CELL* cell);
+    void Insert(CELL*);
+    void Remove(CELL*);
     bool FindVacant(CELL*);
     bool SingleVacant(CELL*);
     bool DumbFill(CELL*);
@@ -45,9 +45,9 @@ public:
     void LoadSRcell(CELL*);
 
     // helper function
-    Set* RowSet(int row) { return placement_row[row]; }
-
     int GetRow(double y);
+    BoundPtr BIndex(int, CELL*);
+    BoundCell Bcell(int, CELL*);
     int GetTrack(CELL*); // get cell height in # of row
     bool Legal(CELL*);
     bool SRLegal(CELL*);

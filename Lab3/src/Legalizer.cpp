@@ -20,6 +20,8 @@ void LEGALIZER::PlaceCell() {
         CELL* cell = cptr.S;
         PR.Insert(cell);
     }
+    // PR.Remove(PR.P_Row[0][0]);
+    // PR.PrintPR();
 }
 
 void LEGALIZER::RunOpt(string& opt_file) {
@@ -49,9 +51,10 @@ void LEGALIZER::RunOpt(string& opt_file) {
         merge_cell->merge = true;
         
         if(!PR.Legal(merge_cell)) {
-            // Legalize(merge_cell);
-            if(!SRTetris(merge_cell)) 
-                if(!SpaceSearch(merge_cell)) break;
+
+            if(!SpaceSearch(merge_cell)) continue;
+            // if(!SRTetris(merge_cell)) 
+            //     if(!SpaceSearch(merge_cell)) break;
         } else {
             legal_num++;
             AddCell(merge_cell);
@@ -77,11 +80,11 @@ bool LEGALIZER::SpaceSearch(CELL* cell) {
         AddCell(cell);
         return true;
     }
-    // else if(PR.DumbFill(cell)) {
-    //     AddCell(cell);
-    //     legal_num++;
-    //     return true;
-    // }
+    else if(PR.DumbFill(cell)) {
+        AddCell(cell);
+        legal_num++;
+        return true;
+    }
     else {
         illegal_num++;
         return false;
