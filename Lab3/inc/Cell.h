@@ -34,6 +34,7 @@ public:
     double RIGHT() const { return x + GetW(); }
     double TOP() const { return y + GetH(); }
     bool   Fix() const { return fix; }
+    
 };
 
 

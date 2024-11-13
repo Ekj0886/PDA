@@ -1,6 +1,7 @@
 #ifndef TYPE_H
 #define TYPE_H
 #include <bits/stdc++.h>
+#include "Cell.h"
 
 #define F first 
 #define S second
@@ -11,13 +12,24 @@ struct CompareByX {
     }
 };
 
+using Set = set<CELL*, CompareByX>;
 using RowIterator = std::optional<std::set<CELL*, CompareByX>::iterator>;
 using Rptr = std::set<CELL*, CompareByX>::iterator;
-
 
 struct DIE {
     double lowerX, lowerY;
     double upperX, upperY;
+};
+
+class WINDOW {
+
+public:
+    double xs, xe;
+    int    rs, re;
+
+    double GetW() { return xe - xs; }
+    int GetTrack() { return re - rs + 1; }
+    
 };
 
 class TIME {

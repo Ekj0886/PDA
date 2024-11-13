@@ -18,13 +18,13 @@ public:
     double height;
     double xcoor, ycoor;
     
-    vector<set<CELL*, CompareByX>> placement_row;
+    vector<Set*> placement_row;
     vector<double> space;
-
+    vector<double> Xseg; // start point of segment
 
     // operator overwrite
-    set<CELL*, CompareByX>& operator[](size_t index) {
-        return placement_row[index];
+    Set& operator[](size_t index) {
+        return *placement_row[index];
     }
 
     // major function 
@@ -34,11 +34,23 @@ public:
     bool FindVacant(CELL*);
     bool SingleVacant(CELL*);
     bool DumbFill(CELL*);
+    bool FindSRVacant(CELL*);
+    bool Legalize(CELL*);
+
+    // sub function for Legalize (.cpp)
+    unordered_map<CELL*, double> SRcellmap;
+    vector<deque<CELL*>> SRcell; 
+    vector<double> x; // Row x coor indicator
+
+    void LoadSRcell(CELL*);
 
     // helper function
+    Set* RowSet(int row) { return placement_row[row]; }
+
     int GetRow(double y);
     int GetTrack(CELL*); // get cell height in # of row
     bool Legal(CELL*);
+    bool SRLegal(CELL*);
     bool InBound(int);
     double TOP() { return ycoor + height*(row_num-1); }
     double LEFT() { return xcoor; }
@@ -46,10 +58,12 @@ public:
     void PrintRow(int row);
     void PrintPR();
 
-    RowIterator Xs(int row, double x);
-    RowIterator Xe(int row, double x);
+    
 
-    void test();
+    
+
+    // WINDOW SetWindow(CELL*);
+    // void FindSegment(WINDOW W);
 
 };
 

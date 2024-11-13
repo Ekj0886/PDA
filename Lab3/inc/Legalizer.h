@@ -13,6 +13,9 @@ using namespace std;
 
 class LEGALIZER {
 
+private:
+    int legal_num, illegal_num;
+
 public:
     string file;
 
@@ -28,8 +31,8 @@ public:
     void RunOpt(string&);
     void AddCell(CELL*);
     void Legalize(CELL*);
-    // bool FindVacant(CELL*);
-
+    bool SpaceSearch(CELL*);
+    bool SRTetris(CELL*);
     void DumpLayout(string);
     
 };
