@@ -11,7 +11,7 @@ using namespace std;
 
 class PLACEROW {
   
-public:
+public: // main placerow
     DIE Die;
     int row_num;
     int site_num;
@@ -37,17 +37,18 @@ public:
     bool FindSRVacant(CELL*);
     bool Legalize(CELL*);
 
-    // sub function for Legalize (.cpp)
-    unordered_map<CELL*, double> SRcellmap;
-    vector<deque<CELL*>> SRcell; 
-    vector<double> x; // Row x coor indicator
+public: // sub member function for Legalize (PR_tetris.cpp)
+    unordered_map<CELL*, double> SRcellmap; // document original cell position
 
-    void LoadSRcell(CELL*);
+    bool PushRight(CELL*);
 
-    // helper function
+
+public: // helper function (PR_util.cpp)
     int GetRow(double y);
     BoundPtr BIndex(int, CELL*);
     BoundCell Bcell(int, CELL*);
+    Rptr U_ptr(int, CELL*);
+    Rptr L_ptr(int, CELL*);
     int GetTrack(CELL*); // get cell height in # of row
     bool Legal(CELL*);
     bool SRLegal(CELL*);

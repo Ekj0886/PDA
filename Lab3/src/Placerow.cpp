@@ -8,134 +8,6 @@ using namespace std;
 
 // functions defined in header file
 
-int PLACEROW::GetRow(double y) {
-    return (y - ycoor) / height;
-}
-
-int PLACEROW::GetTrack(CELL* cell) {
-    return cell->GetH() / height;
-}
-
-// BoundCell PLACEROW::Bcell(int row, CELL* cell) {
-//     BoundCell B;
-//     cout << "Start B" << endl;
-//     auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
-//         [](const CELL* c, double value) {
-//             return c->LEFT() < value;
-//         });
-
-//     auto lptr = (uptr == P_Row[row].begin()) ? uptr : uptr - 1;
-
-//     B.Ucell = (uptr == P_Row[row].end()) ? nullptr : *uptr;
-//     B.Lcell = *lptr;
-//     cout << "End Bcell" << endl;
-//     return B;
-// }
-
-
-BoundCell PLACEROW::Bcell(int row, CELL* cell) {
-    BoundCell B;
-    // cout << "B start" << endl;
-    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
-                [](const CELL* c, double value) {
-                return c->LEFT() < value; });
-    // cout << "ptr get" << endl;
-    auto lptr = uptr-1;
-    B.Ucell = *uptr;
-    B.Lcell = *lptr;
-    return B; 
-}
-
-BoundPtr PLACEROW::BIndex(int row, CELL* cell) {
-    BoundPtr B;
-    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
-                [](const CELL* c, double value) {
-                return c->LEFT() < value; });
-
-    auto lptr = uptr-1;
-    B.Uptr = uptr;
-    B.Lptr = lptr;
-    return B;
-}
-
-bool PLACEROW::Legal(CELL* cell) {
-    // fix cell y if not on site
-    if((double)((cell->DOWN() - ycoor) / height) != (int)((cell->DOWN() - ycoor) / height) ) {
-        cout << "Tweak y" << endl;
-        double legal_y = ycoor + (double)height * (int)((cell->DOWN() - ycoor) / height);
-        cell->SetXY(cell->LEFT(), legal_y);
-    }
-
-    // check Die bound
-    if(cell->LEFT() < Die.lowerX || cell->RIGHT() > Die.upperX || cell->DOWN() < Die.lowerY || cell->TOP() > Die.upperY) return false;
-
-    // check within placement row
-    if(cell->LEFT() < xcoor || cell->LEFT() > xcoor + site_num - 1) return false;
-    
-    // check overlap
-    for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
-        // if(!InBound(row)) cout << "not inbound" << endl;
-        BoundCell B = Bcell(row, cell);
-        
-        // Check cell upper bound & lower bound
-        if(!B.Lcell->pseudo && B.Lcell->RIGHT() > cell->LEFT()) return false;
-        if(!B.Ucell->pseudo && B.Ucell->LEFT() < cell->RIGHT()) return false;
-    }
-
-    return true;
-
-}
-
-bool PLACEROW::SRLegal(CELL* cell) {
-
-    // fix cell y if not on site
-    if((double)((cell->DOWN() - ycoor) / height) != (int)((cell->DOWN() - ycoor) / height) ) {
-        cout << "Tweak y" << endl;
-        double legal_y = ycoor + (double)height * (int)((cell->DOWN() - ycoor) / height);
-        cell->SetXY(cell->LEFT(), legal_y);
-    }
-
-    // check Die bound
-    if(cell->LEFT() < Die.lowerX || cell->RIGHT() > Die.upperX || cell->DOWN() < Die.lowerY || cell->TOP() > Die.upperY) return false;
-
-    // check within placement row
-    if(cell->LEFT() < xcoor || cell->LEFT() > xcoor + site_num - 1) return false;
-    
-    // check overlap
-    for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
-        BoundCell B = Bcell(row, cell);
-        bool Umult = (B.Ucell->GetH() > height) || (B.Ucell->Fix());
-        bool Lmult = (B.Lcell->GetH() > height) || (B.Lcell->Fix());
-        // Check cell upper bound & lower bound
-        if(!B.Lcell->pseudo && (B.Lcell->RIGHT() > cell->LEFT() || Lmult)) return false;
-        if(!B.Ucell->pseudo && (B.Ucell->LEFT() < cell->RIGHT() || Umult)) return false;
-    }
-
-    return true;
-
-}
-
-
-void PLACEROW::PrintRow(int row) {
-    cout << row << ": ";
-    if(P_Row[row].empty()) {
-        cout << "EMPTY" << endl;
-        return; 
-    }
-    for(auto c : P_Row[row]) {
-        cout << "(" << c->LEFT() << ", " << c->RIGHT() << ") ";
-    }cout << endl;
-}
-
-
-void PLACEROW::PrintPR() {
-    for(int i = row_num-1; i >= 0; i--) {
-        PrintRow(i);
-    }
-}
-
-
-
 void PLACEROW::Init(int row, int site, double h, double x, double y) {
     row_num = row;
     site_num = site;
@@ -301,10 +173,6 @@ bool PLACEROW::SingleVacant(CELL* cell) {
 
 }
 
-bool PLACEROW::InBound(int row) {
-    return (row >= 0 && row < row_num);
-}
-
 bool PLACEROW::DumbFill(CELL* cell) {
     // cout << "Dumbfill" << endl;
     int row = GetRow(cell->DOWN());
@@ -394,80 +262,8 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
 
 bool PLACEROW::Legalize(CELL* cell) {
     
-//     SRcellmap.clear();
-//     SRcell.clear();
-//     x.clear();
-
-//     SRcell.resize(GetTrack(cell)); 
-//     x.resize(GetTrack(cell)); // Row x coor indicator
+    //  Right hand side legalization
+    if(PushRight(cell)) cout << "push right done" << endl;
     
-// //  Right hand side legalization
-
-//     // load SRcell information
-//     for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
-        
-//         x[row] = cell->RIGHT();
-//         Rptr ub = P_Row[row]->lowerbound(cell);
-//         CELL* ucell = (*ub);
-//         while(!ucell->pseudo) {
-//             if(!ucell->Fix() && GetTrack(ucell) == 1) {
-//                 SRcellmap[ucell] = ucell->LEFT();
-//                 SRcell[row].push_back(ucell);
-//             }
-//             ub++;
-//             ucell = (*ub);
-//         }
-
-//     }
-
-//     // start legalize
-//     for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
-
-//         while(!SRcell[row].empty()) {
-
-//             CELL* ucell = SRcell.front();
-//             SRcell.pop_front();
-
-//             ucell->SetXY(x[row], ucell->DOWN());
-
-//             if(Legal(ucell)) {
-                
-//             }
-
-//         }
-
-//     }
     return false;
 }
-
-// WINDOW PLACEROW::SetWindow(CELL* cell) {
-//     int num = 3;
-//     WINDOW W;
-//     W.xs = max( min(cell->LEFT() - num * cell->GetW(), RIGHT()), LEFT());
-//     W.xe = max( min(cell->RIGHT() + num * cell->GetW(), RIGHT()), LEFT());
-//     W.rs = max( min(GetRow(cell->DOWN()) - GetTrack(cell), row_num-1), 0);
-//     W.re = max( min(GetRow(cell->TOP()) + GetTrack(cell) - 1, row_num-1), 0);
-//     return W;
-// }
-
-// void PLACEROW::FindSegment(WINDOW W) {
-
-//     // cout << "Window Height: " << W.GetTrack() << endl;
-
-//     Xseg.resize(W.GetTrack(), W.xs);
-
-//     for(int row = W.rs; row <= W.re; row++) {
-
-//         auto xs = Xs(row, W.xs);
-//         auto xe = Xe(row, W.xe);
-
-//         for (auto c = *xs; c != *xe; ++c) {
-//             CELL* cell = *c;
-
-//         }   
-
-//     }
-
-// }
-
-

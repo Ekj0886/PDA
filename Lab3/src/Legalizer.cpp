@@ -80,11 +80,11 @@ bool LEGALIZER::SpaceSearch(CELL* cell) {
         AddCell(cell);
         return true;
     }
-    else if(PR.DumbFill(cell)) {
-        AddCell(cell);
-        legal_num++;
-        return true;
-    }
+    // else if(PR.DumbFill(cell)) {
+    //     AddCell(cell);
+    //     legal_num++;
+    //     return true;
+    // }
     else {
         illegal_num++;
         return false;
