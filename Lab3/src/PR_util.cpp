@@ -16,18 +16,66 @@ int PLACEROW::GetTrack(CELL* cell) {
     return cell->GetH() / height;
 }
 
-BoundCell PLACEROW::Bcell(int row, CELL* cell) {
+int PLACEROW::U_index(int row, double d) {
+    auto it = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), d,
+        [](const CELL* cell, double target) {
+            return cell->LEFT() < target;  // Compare the LEFT() member function of CELL to `d`
+        });
+
+    // Check if we found a valid element, or if `it` is at the end of the vector
+    if (it != P_Row[row].end()) {
+        return std::distance(P_Row[row].begin(), it);  // Return the index of the found element
+    } else {
+        return -1;  // If no such element exists, return -1 or handle as needed
+    }
+}
+
+int PLACEROW::L_index(int row, double d) {
+    auto it = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), d,
+        [](const CELL* cell, double target) {
+            return cell->LEFT() < target;
+        });
+
+    // Move iterator back by one position if it’s not at the beginning
+    if (it != P_Row[row].begin()) {
+        --it;
+        return std::distance(P_Row[row].begin(), it);  // Return the index of the found element
+    } else {
+        return -1;  // If all elements are greater than or equal to `d`, return -1
+    }
+}
+
+BoundCell PLACEROW::Bcell(int row, double d) {
     BoundCell B;
     // cout << "B start" << endl;
-    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
-                [](const CELL* c, double value) {
-                return c->LEFT() < value; });
+    // cout << "size: " << P_Row[row].size() << endl;
+    // PrintRow(row);
+
+    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), d,
+                [](const CELL* cell, double target) {
+                    return cell->LEFT() < target;  // Compare the LEFT() member function of CELL to `d`
+                });
     // cout << "ptr get" << endl;
     auto lptr = uptr-1;
+
+    
     B.Ucell = *uptr;
     B.Lcell = *lptr;
     return B; 
 }
+
+// BoundCell PLACEROW::Bcell(int row, CELL* cell) {
+//     BoundCell B;
+//     // cout << "B start" << endl;
+//     auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
+//                 [](const CELL* c, double value) {
+//                 return c->LEFT() < value; });
+//     // cout << "ptr get" << endl;
+//     auto lptr = uptr-1;
+//     B.Ucell = *uptr;
+//     B.Lcell = *lptr;
+//     return B; 
+// }
 
 BoundPtr PLACEROW::BIndex(int row, CELL* cell) {
     BoundPtr B;
@@ -41,23 +89,25 @@ BoundPtr PLACEROW::BIndex(int row, CELL* cell) {
     return B;
 }
 
-Rptr PLACEROW::U_ptr(int row, CELL* cell) {
-    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
-                [](const CELL* c, double value) {
-                return c->LEFT() < value; });
-    return uptr;
+Rptr PLACEROW::U_ptr(int row, double d) {
+    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), d,
+                [](const CELL* cell, double target) {
+                    return cell->LEFT() < target;  // Compare the LEFT() member function of CELL to `d`
+                });
+    return uptr; // Return the iterator to the position found
 }
 
-Rptr PLACEROW::L_ptr(int row, CELL* cell) {
-    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell->LEFT(),
-                [](const CELL* c, double value) {
-                return c->LEFT() < value; });
+Rptr PLACEROW::L_ptr(int row, double d) {
+    auto uptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), d,
+                [](const CELL* cell, double target) {
+                    return cell->LEFT() < target;  // Compare the LEFT() member function of CELL to `d`
+                });
     auto lptr = uptr - 1;
     return lptr;
 }
 
-
 bool PLACEROW::Legal(CELL* cell) {
+    // cout << "check legal " << cell->GetName() << endl;
     // fix cell y if not on site
     if((double)((cell->DOWN() - ycoor) / height) != (int)((cell->DOWN() - ycoor) / height) ) {
         cout << "Tweak y" << endl;
@@ -66,24 +116,52 @@ bool PLACEROW::Legal(CELL* cell) {
     }
 
     // check Die bound
-    if(cell->LEFT() < Die.lowerX || cell->RIGHT() > Die.upperX || cell->DOWN() < Die.lowerY || cell->TOP() > Die.upperY) return false;
-
-    // check within placement row
-    if(cell->LEFT() < xcoor || cell->LEFT() > xcoor + site_num - 1) return false;
-    
-    // check overlap
-    for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
-        // if(!InBound(row)) cout << "not inbound" << endl;
-        BoundCell B = Bcell(row, cell);
-        
-        // Check cell upper bound & lower bound
-        if(!B.Lcell->pseudo && B.Lcell->RIGHT() > cell->LEFT()) return false;
-        if(!B.Ucell->pseudo && B.Ucell->LEFT() < cell->RIGHT()) return false;
+    // cout << "check Die Bound" << endl;
+    if(cell->LEFT() < Die.lowerX || cell->RIGHT() > Die.upperX || cell->DOWN() < Die.lowerY || cell->TOP() > Die.upperY) {
+        // cout << "Out of Die" << endl;
+        return false;
     }
+    // check within placement row
+    // cout << "check PR Bound" << endl;
+    if(cell->LEFT() < xcoor || cell->LEFT() > xcoor + site_num - 1) {
+        // cout << "Out of PR" << endl;
+        return false;
+    }
+    // check overlap
+    // cout << "check Overlap" << endl;
+    for(int row = GetRow(cell->DOWN()); row <= min(GetRow(cell->TOP()), row_num-1); row++) {
+        // if(!InBound(row)) cout << "not inbound" << endl;
+        // cout << "row: " << row << endl;
+        int Ui = U_index(row, cell->LEFT());
+        int Li = L_index(row, cell->LEFT());
+        // cout << Li << " " << Ui << endl;
+        
+        // BoundCell B = Bcell(row, cell->LEFT());
+        CELL* Lcell = P_Row[row][Li];
+        CELL* Ucell = P_Row[row][Ui];
+
+        // cout << Lcell->GetName() << " " << Ucell->GetName() << endl;
+
+        // Check cell upper bound & lower bound
+        if(!Lcell->pseudo && Lcell->RIGHT() > cell->LEFT()) {
+            // cout << "Overlap with Lcell: " << Lcell->GetName() << endl;
+            return false;
+        } 
+        if(!Ucell->pseudo && Ucell->LEFT() < cell->RIGHT()) {
+            // cout << "Overlap with Ucell: " << Ucell->GetName() << endl;
+            return false;
+        } 
+        
+
+    }
+
+    // cout << "check legal" << endl;
 
     return true;
 
 }
+
+
 
 bool PLACEROW::SRLegal(CELL* cell) {
 
@@ -102,12 +180,12 @@ bool PLACEROW::SRLegal(CELL* cell) {
     
     // check overlap
     for(int row = GetRow(cell->DOWN()); row < min(GetRow(cell->TOP()), row_num-1); row++) {
-        BoundCell B = Bcell(row, cell);
+        BoundCell B = Bcell(row, cell->LEFT());
         bool Umult = (B.Ucell->GetH() > height) || (B.Ucell->Fix());
         bool Lmult = (B.Lcell->GetH() > height) || (B.Lcell->Fix());
         // Check cell upper bound & lower bound
-        if(!B.Lcell->pseudo && (B.Lcell->RIGHT() > cell->LEFT() || Lmult)) return false;
-        if(!B.Ucell->pseudo && (B.Ucell->LEFT() < cell->RIGHT() || Umult)) return false;
+        if(!B.Lcell->pseudo && B.Lcell->RIGHT() > cell->LEFT() && Lmult) return false;
+        if(!B.Ucell->pseudo && B.Ucell->LEFT() < cell->RIGHT() && Umult) return false;
     }
 
     return true;
@@ -122,7 +200,8 @@ void PLACEROW::PrintRow(int row) {
         return; 
     }
     for(auto c : P_Row[row]) {
-        cout << "(" << c->LEFT() << ", " << c->RIGHT() << ") ";
+        // cout << "(" << c->LEFT() << ", " << c->RIGHT() << ") ";
+        cout << c->GetName() << " ";
     }cout << endl;
 }
 

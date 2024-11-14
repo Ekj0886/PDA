@@ -16,6 +16,14 @@ using Set = set<CELL*, CompareByX>;
 using RowIterator = std::optional<std::set<CELL*, CompareByX>::iterator>;
 using Rptr = std::vector<CELL*>::iterator;
 
+struct RptrHash {
+    template <typename Iterator>
+    size_t operator()(Iterator it) const {
+        return std::hash<typename std::iterator_traits<Iterator>::value_type>{}(*it);
+    }
+};
+
+
 struct DIE {
     double lowerX, lowerY;
     double upperX, upperY;

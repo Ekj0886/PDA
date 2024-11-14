@@ -37,18 +37,24 @@ public: // main placerow
     bool FindSRVacant(CELL*);
     bool Legalize(CELL*);
 
-public: // sub member function for Legalize (PR_tetris.cpp)
-    unordered_map<CELL*, double> SRcellmap; // document original cell position
 
+public: // sub member function for Legalize (PR_tetris.cpp)
+    map<int, unordered_map<Rptr, CELL*, RptrHash>> RowMem;
+    map<int, unordered_map<CELL*, double>> CellMem; // document moved cell original position
+    bool Overlap(CELL*, CELL*);
     bool PushRight(CELL*);
+    bool PushLeft(CELL*);
+    void GoBack(CELL*);
 
 
 public: // helper function (PR_util.cpp)
     int GetRow(double y);
     BoundPtr BIndex(int, CELL*);
-    BoundCell Bcell(int, CELL*);
-    Rptr U_ptr(int, CELL*);
-    Rptr L_ptr(int, CELL*);
+    BoundCell Bcell(int, double);
+    int U_index(int, double);
+    int L_index(int, double);
+    Rptr U_ptr(int, double);
+    Rptr L_ptr(int, double);
     int GetTrack(CELL*); // get cell height in # of row
     bool Legal(CELL*);
     bool SRLegal(CELL*);
@@ -58,10 +64,6 @@ public: // helper function (PR_util.cpp)
     double RIGHT() { return xcoor + site_num - 1; }
     void PrintRow(int row);
     void PrintPR();
-
-    
-
-    
 
     // WINDOW SetWindow(CELL*);
     // void FindSegment(WINDOW W);

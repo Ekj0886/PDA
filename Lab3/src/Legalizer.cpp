@@ -32,8 +32,14 @@ void LEGALIZER::RunOpt(string& opt_file) {
     legal_num = 0;
     illegal_num = 0;
     
+    // PR.PrintPR();
+
     while(opt >> __) {
     // opt >> __;
+
+        // cout << "Load new opt" << endl;
+
+        // PR.PrintRow(217);
 
         string cell_name;
         double x, y, w, h;
@@ -42,19 +48,21 @@ void LEGALIZER::RunOpt(string& opt_file) {
             if(cell_name == "-->") break;
             CELL* cell = Cellmap[cell_name];
             PR.Remove(cell);
-            delete cell;
             Cellmap.erase(cell_name);
         }
 
+        // cout << "Erase FF" << endl;
+
         opt >> cell_name >> x >> y >> w >> h;
         CELL* merge_cell = new CELL(cell_name, x, y, w, h, 0);
+        
         merge_cell->merge = true;
         
         if(!PR.Legal(merge_cell)) {
 
-            if(!SpaceSearch(merge_cell)) continue;
-            // if(!SRTetris(merge_cell)) 
-            //     if(!SpaceSearch(merge_cell)) break;
+            if(!SpaceSearch(merge_cell)) cout << "Space search fail" << endl;
+            // if(!SRTetris(merge_cell)) break;
+                // if(!SpaceSearch(merge_cell)) break;
         } else {
             legal_num++;
             AddCell(merge_cell);
@@ -75,6 +83,7 @@ void LEGALIZER::AddCell(CELL* cell) {
 }
 
 bool LEGALIZER::SpaceSearch(CELL* cell) {
+    // cout << "Start SpaceSearch" << endl;
     if(PR.FindVacant(cell)) {
         legal_num++;
         AddCell(cell);
@@ -96,12 +105,16 @@ bool LEGALIZER::SRTetris(CELL* cell) {
     double y = cell->DOWN();
 
     if(PR.FindSRVacant(cell)) {
+        cout << "FindVacant: " ;
+        cout << cell->LEFT() << " " << cell->DOWN() << endl;
         if(PR.Legalize(cell)) {
             legal_num++;
             AddCell(cell);
+            cout << "SRTetrixs Done" << endl;
             return true;
         }
     }
+    // cout << "Vacant not found" << endl;
     cell->SetXY(x, y);
     return false;
 }
