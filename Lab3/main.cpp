@@ -18,11 +18,9 @@ int main(int argc, char *argv[]) {
     clock.StartTimer();
 
     LEGALIZER LGR;
-    LGR.parse(input_lg);
+    LGR.parse(input_lg, output_lg);
     LGR.PlaceCell();
-    // LGR.RunOpt(input_opt);
-    
-
+    LGR.RunOpt(input_opt);
 
     clock.EndTimer();
     cout << "Runtime: " << clock.Duration() << endl;

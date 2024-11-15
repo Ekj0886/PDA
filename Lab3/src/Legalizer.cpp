@@ -7,12 +7,16 @@
 using namespace std;
 
 // functions defined in header file
-void LEGALIZER::parse(string& file_name) {
-    this->file = file_name;
-    PARSER Parser(file);
+void LEGALIZER::parse(string& infile_name, string& outfile_name) {
+    this->in_file = infile_name;
+    this->out_file = outfile_name;
+    // outfile.open(outfile_name);
+    ofstream outfile(outfile_name);
+    PARSER Parser(in_file);
     Parser.parse(*this);
     cout << "== # of Cell: " << Cellmap.size() << endl;
     cout << "== # of PRow: " << PR.row_num << " " << PR.site_num << endl; 
+
 }
 
 void LEGALIZER::PlaceCell() {
@@ -50,11 +54,19 @@ void LEGALIZER::RunOpt(string& opt_file) {
         
         if(!PR.Legal(merge_cell)) {
             // Legalize(merge_cell);
-            if(!SRTetris(merge_cell)) 
-                if(!SpaceSearch(merge_cell)) break;
+
+            if(SpaceSearch(merge_cell)) {
+                // cout << "pass " << legal_num << endl;
+                DumpOutput(merge_cell);
+            }
+
+            // if(!SRTetris(merge_cell)) 
+                // if(!SpaceSearch(merge_cell)) break;
         } else {
             legal_num++;
             AddCell(merge_cell);
+            // cout << "pass " << legal_num << endl;
+            DumpOutput(merge_cell);
         } 
 
         
@@ -77,11 +89,11 @@ bool LEGALIZER::SpaceSearch(CELL* cell) {
         AddCell(cell);
         return true;
     }
-    // else if(PR.DumbFill(cell)) {
-    //     AddCell(cell);
-    //     legal_num++;
-    //     return true;
-    // }
+    else if(PR.DumbFill(cell)) {
+        AddCell(cell);
+        legal_num++;
+        return true;
+    }
     else {
         illegal_num++;
         return false;
@@ -113,4 +125,19 @@ void LEGALIZER::DumpLayout(string file) {
         outfile << fixed << cell->LEFT() << " " << cell->DOWN() << " " << cell->GetW() << " " << cell->GetH() << " " << cell->Fix() << " " << cell->merge << endl;
     }
     cout << "== Dump Layout" << endl;
+}
+
+void LEGALIZER::DumpOutput(CELL* cell) {
+
+    ofstream outfile(out_file, ios::app);
+
+    if (!outfile) {
+        cerr << "Error: Could not open file " << out_file << endl;
+        return;
+    }
+    
+    outfile << fixed << cell->LEFT() << " " << cell->DOWN() << endl;
+    outfile << "0" << endl;
+
+
 }
