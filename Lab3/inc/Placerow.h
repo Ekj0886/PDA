@@ -11,52 +11,43 @@ using namespace std;
 
 class PLACEROW {
   
-public: // main placerow
+public:
     DIE Die;
     int row_num;
     int site_num;
     double height;
     double xcoor, ycoor;
-
-    int dumb_row;
     
-    vector<vector<CELL*>> P_Row;
-    vector<bool> space;
+    vector<Set*> placement_row;
+    vector<double> space;
     vector<double> Xseg; // start point of segment
-    
+
     // operator overwrite
-    vector<CELL*>& operator[](size_t index) {
-        return P_Row[index];
+    Set& operator[](size_t index) {
+        return *placement_row[index];
     }
 
     // major function 
     void Init(int row, int site, double h, double x, double y);
-    void Insert(CELL*);
-    void Remove(CELL*);
+    void Insert(CELL* cell);
+    void Remove(CELL* cell);
     bool FindVacant(CELL*);
     bool SingleVacant(CELL*);
     bool DumbFill(CELL*);
     bool FindSRVacant(CELL*);
     bool Legalize(CELL*);
 
+    // sub function for Legalize (.cpp)
+    unordered_map<CELL*, double> SRcellmap;
+    vector<deque<CELL*>> SRcell; 
+    vector<double> x; // Row x coor indicator
 
-public: // sub member function for Legalize (PR_tetris.cpp)
-    map<int, unordered_map<Rptr, CELL*, RptrHash>> RowMem;
-    map<int, unordered_map<CELL*, double>> CellMem; // document moved cell original position
-    bool Overlap(CELL*, CELL*);
-    bool PushRight(CELL*);
-    bool PushLeft(CELL*);
-    void GoBack(CELL*);
+    void LoadSRcell(CELL*);
 
+    // helper function
+    Set* RowSet(int row) { return placement_row[row]; }
 
-public: // helper function (PR_util.cpp)
     int GetRow(double y);
-    BoundPtr BIndex(int, CELL*);
-    BoundCell Bcell(int, double);
-    int U_index(int, double);
-    int L_index(int, double);
-    Rptr U_ptr(int, double);
-    Rptr L_ptr(int, double);
     int GetTrack(CELL*); // get cell height in # of row
     bool Legal(CELL*);
     bool SRLegal(CELL*);
@@ -66,8 +57,11 @@ public: // helper function (PR_util.cpp)
     double RIGHT() { return xcoor + site_num - 1; }
     void PrintRow(int row);
     void PrintPR();
-    void PrintSpace();
-    void GetSpace(CELL*);
+
+    
+
+    
+
     // WINDOW SetWindow(CELL*);
     // void FindSegment(WINDOW W);
 

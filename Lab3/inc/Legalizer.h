@@ -17,7 +17,7 @@ private:
     int legal_num, illegal_num;
 
 public:
-    string file;
+    string in_file, out_file;
 
     double alpha, beta;
     DIE Die;
@@ -26,7 +26,7 @@ public:
     PLACEROW PR;
 
     // function
-    void parse(string&);
+    void parse(string&, string&);
     void PlaceCell();
     void RunOpt(string&);
     void AddCell(CELL*);
@@ -34,6 +34,7 @@ public:
     bool SpaceSearch(CELL*);
     bool SRTetris(CELL*);
     void DumpLayout(string);
+    void DumpOutput(CELL*);
     
 };
 
