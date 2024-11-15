@@ -33,6 +33,7 @@ void LEGALIZER::RunOpt(string& opt_file) {
     illegal_num = 0;
     
     // PR.PrintPR();
+    PR.dumb_row = 0;
 
     while(opt >> __) {
     // opt >> __;
@@ -47,6 +48,7 @@ void LEGALIZER::RunOpt(string& opt_file) {
         while(opt >> cell_name) {
             if(cell_name == "-->") break;
             CELL* cell = Cellmap[cell_name];
+            PR.GetSpace(cell);
             PR.Remove(cell);
             Cellmap.erase(cell_name);
         }
@@ -60,7 +62,9 @@ void LEGALIZER::RunOpt(string& opt_file) {
         
         if(!PR.Legal(merge_cell)) {
 
-            if(!SpaceSearch(merge_cell)) cout << "Space search fail" << endl;
+            if(!SpaceSearch(merge_cell)){
+
+            }
             // if(!SRTetris(merge_cell)) break;
                 // if(!SpaceSearch(merge_cell)) break;
         } else {
@@ -85,15 +89,17 @@ void LEGALIZER::AddCell(CELL* cell) {
 bool LEGALIZER::SpaceSearch(CELL* cell) {
     // cout << "Start SpaceSearch" << endl;
     if(PR.FindVacant(cell)) {
+        cout << "Quick Found " << legal_num << endl;
         legal_num++;
         AddCell(cell);
         return true;
     }
-    // else if(PR.DumbFill(cell)) {
-    //     AddCell(cell);
-    //     legal_num++;
-    //     return true;
-    // }
+    if(PR.DumbFill(cell)) {
+        cout << "Dumb Found " << legal_num << " " << PR.dumb_row << endl;
+        AddCell(cell);
+        legal_num++;
+        return true;
+    }
     else {
         illegal_num++;
         return false;

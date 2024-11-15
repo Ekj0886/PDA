@@ -8,6 +8,55 @@ using namespace std;
 
 // functions defined in header file
 
+void PLACEROW::Init(int row, int site, double h, double x, double y) {
+    row_num = row;
+    site_num = site;
+    height = h;
+    xcoor = x;
+    ycoor = y;
+
+    P_Row.resize(row);
+    space.resize(row);
+    CELL* pseudo_cell_left = new CELL("L", Die.lowerX-1, 0, 1, 0, 1);
+    CELL* pseudo_cell_right = new CELL("R", Die.upperX, 0, 1, 0, 1);
+    pseudo_cell_left->pseudo = true; 
+    pseudo_cell_right->pseudo = true;
+    for(int r = 0; r < row; r++) {
+        P_Row[r].push_back(pseudo_cell_left);
+        P_Row[r].push_back(pseudo_cell_right);
+        space[r] = true;
+    }
+}
+
+
+void PLACEROW::Insert(CELL* cell) {
+    for(int row = GetRow(cell->DOWN()); row <= min(GetRow(cell->TOP()), row_num-1); row++) {
+        auto vptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell,
+            [](CELL* a, CELL* b) {
+                return a->LEFT() < b->LEFT();
+            });
+        
+        P_Row[row].insert(vptr, cell);
+    }
+}
+
+void PLACEROW::Remove(CELL* cell) {
+    if(cell->Fix()) {
+        cout << cell->GetName() << " Cell fixed, can't remove" << endl;
+        return;
+    }
+
+    for(int row = GetRow(cell->DOWN()); row <= min(GetRow(cell->TOP()), row_num-1); row++) {
+        auto vptr = std::lower_bound(P_Row[row].begin(), P_Row[row].end(), cell,
+            [](CELL* a, CELL* b) {
+                return a->LEFT() < b->LEFT();
+            });
+        
+        P_Row[row].erase(vptr);
+    }
+}
+
+
 int PLACEROW::GetRow(double y) {
     return (y - ycoor) / height;
 }
@@ -132,13 +181,15 @@ bool PLACEROW::Legal(CELL* cell) {
     for(int row = GetRow(cell->DOWN()); row <= min(GetRow(cell->TOP()), row_num-1); row++) {
         // if(!InBound(row)) cout << "not inbound" << endl;
         // cout << "row: " << row << endl;
-        int Ui = U_index(row, cell->LEFT());
-        int Li = L_index(row, cell->LEFT());
+        // int Ui = U_index(row, cell->LEFT());
+        // int Li = L_index(row, cell->LEFT());
         // cout << Li << " " << Ui << endl;
         
-        // BoundCell B = Bcell(row, cell->LEFT());
-        CELL* Lcell = P_Row[row][Li];
-        CELL* Ucell = P_Row[row][Ui];
+        BoundCell B = Bcell(row, cell->LEFT());
+        // CELL* Lcell = P_Row[row][Li];
+        // CELL* Ucell = P_Row[row][Ui];
+        CELL* Lcell = B.Lcell;
+        CELL* Ucell = B.Ucell;
 
         // cout << Lcell->GetName() << " " << Ucell->GetName() << endl;
 
@@ -217,3 +268,16 @@ bool PLACEROW::InBound(int row) {
     return (row >= 0 && row < row_num);
 }
 
+void PLACEROW::PrintSpace() {
+    cout << "   space_row: ";
+    int i = 0;
+    for(auto b : space) {
+        if(b) i++;
+    }
+    cout << i << endl;
+}
+
+void PLACEROW::GetSPace(CELL* cell) {
+    int r = GetRow(cell);
+    
+}

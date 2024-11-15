@@ -17,9 +17,11 @@ public: // main placerow
     int site_num;
     double height;
     double xcoor, ycoor;
+
+    int dumb_row;
     
     vector<vector<CELL*>> P_Row;
-    vector<double> space;
+    vector<bool> space;
     vector<double> Xseg; // start point of segment
     
     // operator overwrite
@@ -64,7 +66,8 @@ public: // helper function (PR_util.cpp)
     double RIGHT() { return xcoor + site_num - 1; }
     void PrintRow(int row);
     void PrintPR();
-
+    void PrintSpace();
+    void GetSpace(CELL*);
     // WINDOW SetWindow(CELL*);
     // void FindSegment(WINDOW W);
 
