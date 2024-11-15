@@ -81,13 +81,8 @@ bool PLACEROW::SRLegal(CELL* cell) {
         bool lb_sr = (lb_cell->GetH() > height) || (lb_cell->Fix());
 
         // Check if an upper bound & lower bound
-        if(!lb_cell->pseudo && lb_cell->RIGHT() > cell->LEFT()) {
-            if(lb_sr) return false;
-        }
-        if(!ub_cell->pseudo && ub_cell->LEFT() < cell->RIGHT()) {
-            if(ub_sr) return false;
-        }
-
+        if(!lb_cell->pseudo && lb_cell->RIGHT() > cell->LEFT() && lb_sr) return false;
+        if(!ub_cell->pseudo && ub_cell->LEFT() < cell->RIGHT() && ub_sr) return false;
         y += height;
     }
 
@@ -113,8 +108,6 @@ void PLACEROW::PrintPR() {
         PrintRow(i);
     }
 }
-
-
 
 
 void PLACEROW::Insert(CELL* cell) {

@@ -67,7 +67,7 @@ def plot_placement(die_lower_x, die_lower_y, die_upper_x, die_upper_y, cells, pn
     plt.grid(False)  # Remove grid for a cleaner look
 
     # Save the plot as a high-resolution PNG file
-    plt.savefig(png_name, format='png', dpi=600)  # Increase DPI for higher quality
+    plt.savefig(png_name, format='png', dpi=500)  # Increase DPI for higher quality
     plt.close(fig)  # Close the figure to free memory
 
 # Main function to execute parsing and plotting
