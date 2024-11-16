@@ -190,17 +190,24 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
 
 }
 
-bool PLACEROW::Legalize(CELL* cell) {
+bool PLACEROW::Legalize(CELL* cell) {   
+
+    CellMem.clear();
     
+    if(Legal(cell)) return true;
+    // if(SRLegal(cell)) cout << "SRLegal" << endl;
+
+    SetBound(cell);
+
     // Push right
     if(InitR(cell)) {
         if(PushRight()) {
-            cout << "== Push R succeed" << endl;
-            DumpMem();
+            // cout << "== Push R succeed" << endl;
+            // DumpMem();
         }
         else {
-            cout << "== Push R fail" << endl;
-            Restore();
+            // cout << "== Push R fail" << endl;
+            // Restore();
         }
     }
     else {
@@ -208,11 +215,34 @@ bool PLACEROW::Legalize(CELL* cell) {
         return false;
     }
 
-    
+    // Push Left
+    if(InitL(cell)) {
+        if(PushLeft()) {
+            // cout << "== Push L succeed" << endl;
+            // DumpMem();
+        }
+        else {
+            // cout << "== Push L fail" << endl;
+            // Restore();
+        }
+    }
+    else {
+        cout << "== Init L fail" << endl;
+        return false;
+    }
 
 
-    if(Legal(cell)) return true;
-    else            return false;
+    if(Legal(cell)) {
+        cout << "Success" << endl;
+        cout << cell->LEFT() << " " << cell->DOWN() << endl;
+        DumpMem();
+        return true;
+    }
+    else {
+        cout << "Fail" << endl;
+        Restore();
+        return false;
+    }           
     
 }
 

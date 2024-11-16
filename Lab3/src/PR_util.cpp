@@ -74,8 +74,13 @@ bool PLACEROW::SRLegal(CELL* cell) {
         Rptr ub = RowSet(row)->lower_bound(cell);
         Rptr lb = prev(ub);
 
+        while(!(*ub)->Fix() && !(*ub)->pseudo) ub++;
+        while(!(*lb)->Fix() && !(*lb)->pseudo) lb--;
+
         CELL* ub_cell = *ub;
         CELL* lb_cell = *lb;
+
+        // cout << ub_cell->GetName() << " " << lb_cell->GetName() << endl;
 
         bool ub_sr = (ub_cell->Fix());
         bool lb_sr = (lb_cell->Fix());
@@ -92,6 +97,8 @@ bool PLACEROW::SRLegal(CELL* cell) {
 }
 
 
+
+
 void PLACEROW::PrintRow(int row) {
     cout << row << ": ";
     if(RowSet(row)->empty()) {
@@ -99,7 +106,8 @@ void PLACEROW::PrintRow(int row) {
         return; 
     }
     for(const auto& c : *RowSet(row)) {
-        cout << "(" << c->LEFT() << ", " << c->RIGHT() << ") ";
+        // cout << "(" << c->LEFT() << ", " << c->RIGHT() << ") ";
+        cout << c->GetName() << " ";
     }cout << endl;
 }
 
@@ -139,4 +147,13 @@ void PLACEROW::Remove(CELL* cell) {
 
 bool PLACEROW::InBound(int row) {
     return (row >= 0 && row < row_num);
+}
+
+Rptr PLACEROW::Uptr(int row, CELL* cell) {
+    return RowSet(row)->lower_bound(cell);
+}
+
+Rptr PLACEROW::Lptr(int row, CELL* cell) {
+    Rptr ub = RowSet(row)->lower_bound(cell);
+    return prev(ub);
 }

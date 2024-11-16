@@ -33,9 +33,8 @@ void LEGALIZER::RunOpt(string& opt_file) {
 
     legal_num = 0;
     illegal_num = 0;
-    
-    while(opt >> __) {
-    // opt >> __;
+    // while(opt >> __) {
+    for(int q = 0; q < 2; q++) { opt >> __;
 
         string cell_name;
         double x, y, w, h;
@@ -53,8 +52,6 @@ void LEGALIZER::RunOpt(string& opt_file) {
         merge_cell->merge = true;
         
         if(!PR.Legal(merge_cell)) {
-            // Legalize(merge_cell);
-
             // if(SpaceSearch(merge_cell)) {
             //     // cout << "pass " << legal_num << endl;
             //     DumpOutput(merge_cell);
@@ -105,17 +102,21 @@ bool LEGALIZER::SpaceSearch(CELL* cell) {
 }
 
 bool LEGALIZER::SRTetris(CELL* cell) {
-    double x = cell->LEFT();
-    double y = cell->DOWN();
+    // double x = cell->LEFT();
+    // double y = cell->DOWN();
 
     if(PR.FindSRVacant(cell)) {
+        cout << "==========================================================================================================================" << endl;
+        cout << "<SRTetris> " << cell->GetName() << " " << cell->LEFT() << " " << cell->DOWN() << " " << cell->TOP() << " " << cell->RIGHT() << endl;
+        cout << "==========================================================================================================================" << endl;
         if(PR.Legalize(cell)) {
             legal_num++;
             AddCell(cell);
             return true;
         }
     }
-    cell->SetXY(x, y);
+    // cell->SetXY(x, y);
+    // cout << 
     return false;
 }
 

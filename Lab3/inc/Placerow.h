@@ -39,7 +39,7 @@ public:
 
 
 public:
-    // sub function for Tetris (PR_tetris.cpp)
+    // function for Tetris (PR_tetris.cpp)
     CELL* EMPTY = new CELL("Empty", 0, 0, 0, 0, 1);
     double UB, LB;   // upper & lower bound for moving cell range
     int UR, LR;
@@ -48,11 +48,13 @@ public:
     unordered_map<CELL*, double> CellMem; // memorize original x of cell and moved cell
     deque<Rptr> Qx;
 
+    void SetBound(CELL*);
     bool H_overlap(CELL*, CELL*);
     bool V_overlap(CELL*, CELL*);
     bool isBlk(CELL*);
     void PrintX();
     void PrintPTR();
+    void PrintCellMem();
     void DumpMem();
     void Restore();
     bool CheckPTR();
@@ -86,6 +88,8 @@ public:
     double RIGHT() { return xcoor + site_num - 1; }
     void PrintRow(int row);
     void PrintPR();
+    Rptr Uptr(int row, CELL* cell);
+    Rptr Lptr(int row, CELL* cell);
 
     
 
