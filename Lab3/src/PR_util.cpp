@@ -77,12 +77,13 @@ bool PLACEROW::SRLegal(CELL* cell) {
         CELL* ub_cell = *ub;
         CELL* lb_cell = *lb;
 
-        bool ub_sr = (ub_cell->GetH() > height) || (ub_cell->Fix());
-        bool lb_sr = (lb_cell->GetH() > height) || (lb_cell->Fix());
+        bool ub_sr = (ub_cell->Fix());
+        bool lb_sr = (lb_cell->Fix());
 
         // Check if an upper bound & lower bound
         if(!lb_cell->pseudo && lb_cell->RIGHT() > cell->LEFT() && lb_sr) return false;
         if(!ub_cell->pseudo && ub_cell->LEFT() < cell->RIGHT() && ub_sr) return false;
+
         y += height;
     }
 

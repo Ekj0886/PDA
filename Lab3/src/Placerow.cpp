@@ -48,21 +48,12 @@ bool PLACEROW::FindVacant(CELL* cell) {
 
     for(int i = 1; i <= track; i++) {
         int Urow = row + i;
-        // int Lrow = row - i;
-
         if(Urow < row_num && Urow >= 0) {
             Rptr u = RowSet(Urow)->lower_bound(cell);
             Rptr l = prev(u);
             q.push_back(u);
             q.push_back(l);
         }
-
-        // if(Lrow >= 0 && Lrow < row_num) {
-        //     Rptr u = RowSet(Lrow)->lower_bound(cell);
-        //     Rptr l = prev(u);
-        //     q.push_back(u);
-        //     q.push_back(l);
-        // }
     }
 
 
@@ -150,6 +141,9 @@ bool PLACEROW::DumbFill(CELL* cell) {
 
 bool PLACEROW::FindSRVacant(CELL* cell) {
     // cout << "== Find Vacant" << endl;
+
+    if(SRLegal(cell)) return true;
+
     int track = GetTrack(cell);
     int row = GetRow(cell->DOWN());
 
@@ -165,17 +159,9 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
 
     for(int i = 1; i <= track; i++) {
         int Urow = row + i;
-        int Lrow = row - i;
 
         if(Urow < row_num && Urow >= 0) {
             Rptr u = RowSet(Urow)->lower_bound(cell);
-            Rptr l = prev(u);
-            q.push_back(u);
-            q.push_back(l);
-        }
-
-        if(Lrow >= 0 && Lrow < row_num) {
-            Rptr u = RowSet(Lrow)->lower_bound(cell);
             Rptr l = prev(u);
             q.push_back(u);
             q.push_back(l);
@@ -199,86 +185,36 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
         }
     }
     cell->SetXY(x_origin, y_origin);
+    // cout << "Not found" << endl;
     return false;
 
 }
 
 bool PLACEROW::Legalize(CELL* cell) {
     
-//     SRcellmap.clear();
-//     SRcell.clear();
-//     x.clear();
+    // Push right
+    if(InitR(cell)) {
+        if(PushRight()) {
+            cout << "== Push R succeed" << endl;
+            DumpMem();
+        }
+        else {
+            cout << "== Push R fail" << endl;
+            Restore();
+        }
+    }
+    else {
+        cout << "== Init R fail" << endl;
+        return false;
+    }
 
-//     SRcell.resize(GetTrack(cell)); 
-//     x.resize(GetTrack(cell)); // Row x coor indicator
     
-// //  Right hand side legalization
 
-//     // load SRcell information
-//     for(int row = GetRow(cell->DOWN()); row <= GetRow(cell->TOP()); row++) {
-        
-//         x[row] = cell->RIGHT();
-//         Rptr ub = RowSet(row)->lowerbound(cell);
-//         CELL* ucell = (*ub);
-//         while(!ucell->pseudo) {
-//             if(!ucell->Fix() && GetTrack(ucell) == 1) {
-//                 SRcellmap[ucell] = ucell->LEFT();
-//                 SRcell[row].push_back(ucell);
-//             }
-//             ub++;
-//             ucell = (*ub);
-//         }
 
-//     }
-
-//     // start legalize
-//     for(int row = GetRow(cell->DOWN()); row <= GetRow(cell->TOP()); row++) {
-
-//         while(!SRcell[row].empty()) {
-
-//             CELL* ucell = SRcell.front();
-//             SRcell.pop_front();
-
-//             ucell->SetXY(x[row], ucell->DOWN());
-
-//             if(Legal(ucell)) {
-                
-//             }
-
-//         }
-
-//     }
-    return false;
+    if(Legal(cell)) return true;
+    else            return false;
+    
 }
 
-// WINDOW PLACEROW::SetWindow(CELL* cell) {
-//     int num = 3;
-//     WINDOW W;
-//     W.xs = max( min(cell->LEFT() - num * cell->GetW(), RIGHT()), LEFT());
-//     W.xe = max( min(cell->RIGHT() + num * cell->GetW(), RIGHT()), LEFT());
-//     W.rs = max( min(GetRow(cell->DOWN()) - GetTrack(cell), row_num-1), 0);
-//     W.re = max( min(GetRow(cell->TOP()) + GetTrack(cell) - 1, row_num-1), 0);
-//     return W;
-// }
-
-// void PLACEROW::FindSegment(WINDOW W) {
-
-//     // cout << "Window Height: " << W.GetTrack() << endl;
-
-//     Xseg.resize(W.GetTrack(), W.xs);
-
-//     for(int row = W.rs; row <= W.re; row++) {
-
-//         auto xs = Xs(row, W.xs);
-//         auto xe = Xe(row, W.xe);
-
-//         for (auto c = *xs; c != *xe; ++c) {
-//             CELL* cell = *c;
-
-//         }   
-
-//     }
-
-// }
 
 

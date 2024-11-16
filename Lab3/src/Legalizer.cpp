@@ -55,13 +55,17 @@ void LEGALIZER::RunOpt(string& opt_file) {
         if(!PR.Legal(merge_cell)) {
             // Legalize(merge_cell);
 
-            if(SpaceSearch(merge_cell)) {
-                // cout << "pass " << legal_num << endl;
+            // if(SpaceSearch(merge_cell)) {
+            //     // cout << "pass " << legal_num << endl;
+            //     DumpOutput(merge_cell);
+            // }
+            if(SRTetris(merge_cell)) {
                 DumpOutput(merge_cell);
             }
-
-            // if(!SRTetris(merge_cell)) 
-                // if(!SpaceSearch(merge_cell)) break;
+            else {
+                illegal_num ++;
+            }
+        
         } else {
             legal_num++;
             AddCell(merge_cell);
