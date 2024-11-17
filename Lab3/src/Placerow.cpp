@@ -187,7 +187,10 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
             if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
             else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
 
-            if(SRLegal(cell)) return true;
+            if(SRLegal(cell)) {
+                distance += ( abs(cell->LEFT() - x_origin) + abs(cell->DOWN() - y_origin) );
+                return true; 
+            }
 
             else if(!(*rptr)->pseudo){
                 if(cell->LEFT() > x_origin) {
@@ -214,10 +217,8 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
 }
 
 bool PLACEROW::Legalize(CELL* cell) {   
-
+    
     CellMem.clear();
-
-    vector<CELL*> overlap;
     overlap.clear();
 
     double y = cell->DOWN();
@@ -248,12 +249,13 @@ bool PLACEROW::Legalize(CELL* cell) {
     
     Insert(cell);
     
-    for(CELL* c : overlap) {
+    while(!overlap.empty()) {
+
+        CELL* c = overlap.front();
+        overlap.pop_front();
 
         double origin_x = c->LEFT();
-
-        if(c->merge) cout << "merge" << endl;
-        // else         cout << "not merge" << endl;
+        double origin_y = c->DOWN();
         
         if(!DumbFill(c)) {
             Remove(cell);
@@ -261,8 +263,16 @@ bool PLACEROW::Legalize(CELL* cell) {
             return false;
         }
         else {
-            CellMem[c] = origin_x;
+            CellMem[c] = make_pair(origin_x, origin_y);
             Insert(c);
+            distance += ( abs(c->LEFT() - origin_x) + abs(c->DOWN() - origin_y) );
+
+            if(distance >= (Die.upperX - Die.lowerX + Die.upperY - Die.lowerY) / 10) {
+                Remove(cell);
+                Restore();
+                return false;
+            }
+            
         }
 
     }
@@ -272,11 +282,19 @@ bool PLACEROW::Legalize(CELL* cell) {
 }
 
 void PLACEROW::Restore() {
+    
+    // restore modified cell
     for (auto& cptr : CellMem) {
         CELL* c = cptr.F;
         Remove(c); 
-        c->SetXY(cptr.S, c->DOWN());
+        c->SetXY(cptr.S.F, cptr.S.S);
         Insert(c);
     }
+
+    // restore deleted cell
+    for(auto c : overlap) {
+        Insert(c);
+    }
+
 }
 

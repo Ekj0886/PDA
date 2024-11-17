@@ -39,13 +39,19 @@ public:
 
 
 public:
+    double alpha, beta;
+    double distance;
+    double moved;
+    deque<CELL*> overlap;
+    unordered_map<CELL*, pair<double, double>> CellMem; // memorize coor of cell and moved cell
+    
+public:
     // function for Tetris (PR_tetris.cpp)
     CELL* EMPTY = new CELL("Empty", 0, 0, 0, 0, 1);
     double UB, LB;   // upper & lower bound for moving cell range
     int UR, LR;
     vector<double> x; // Row x coor indicator
     vector<CELL*> PTR; // Row's iterator
-    unordered_map<CELL*, double> CellMem; // memorize original x of cell and moved cell
     deque<Rptr> Qx;
 
     void SetBound(CELL*);

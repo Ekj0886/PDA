@@ -16,7 +16,8 @@ void LEGALIZER::parse(string& infile_name, string& outfile_name) {
     Parser.parse(*this);
     cout << "== # of Cell: " << Cellmap.size() << endl;
     cout << "== # of PRow: " << PR.row_num << " " << PR.site_num << endl; 
-
+    PR.alpha = alpha;
+    PR.beta  = beta;
 }
 
 void LEGALIZER::PlaceCell() {
@@ -33,6 +34,10 @@ void LEGALIZER::RunOpt(string& opt_file) {
 
     legal_num = 0;
     illegal_num = 0;
+
+    int moved_num = 0;
+    int space_num = 0;
+
     while(opt >> __) {
     // for(int q = 0; q < 10; q++) { opt >> __;
 
@@ -50,27 +55,30 @@ void LEGALIZER::RunOpt(string& opt_file) {
         opt >> cell_name >> x >> y >> w >> h;
         CELL* merge_cell = new CELL(cell_name, x, y, w, h, 0);
         merge_cell->merge = true;
-
         
         if(!PR.Legal(merge_cell)) {
             if(SRTetris(merge_cell)) {
-                cout << "push pass " << legal_num << endl;
+                cout << "Moved pass " << legal_num << ": " << merge_cell->GetName() << endl;
                 DumpMoved(merge_cell);
+                moved_num++;
             }
             else if(SpaceSearch(merge_cell)) {
-                cout << "space pass " << legal_num << endl;
+                cout << "Space pass " << legal_num << ": " << merge_cell->GetName() << endl;
                 DumpSpace(merge_cell);
+                space_num++;
             }
             else {
-                cout << "fail " << illegal_num << endl;
+                cout << "Fail " << illegal_num << ": " << merge_cell->GetName() << endl;
                 illegal_num ++;
             }
         
         } 
         else {
-            legal_num++;
+            cout << "Space pass " << legal_num << ": " << merge_cell->GetName() << endl;
             AddCell(merge_cell);
             DumpSpace(merge_cell);
+            legal_num++;
+            space_num++;
         } 
 
         
@@ -79,6 +87,8 @@ void LEGALIZER::RunOpt(string& opt_file) {
     cout << "== Final Cell Num " << Cellmap.size() << endl;
     cout << "== Legal number  : " << legal_num << endl;
     cout << "== ILLegal number: " << illegal_num << endl;
+    cout << "== Moved number  : " << moved_num << endl;
+    cout << "== Space number: " << space_num << endl;
 
 }   
 
@@ -101,6 +111,7 @@ bool LEGALIZER::SpaceSearch(CELL* cell) {
 }
 
 bool LEGALIZER::SRTetris(CELL* cell) {
+    PR.distance = 0;
     if(PR.FindSRVacant(cell)) {
         if(PR.Legalize(cell)) {
             legal_num++;

@@ -127,9 +127,9 @@ void PLACEROW::PrintPR() {
 }
 
 void PLACEROW::Insert(CELL* cell) {
-    if(!Legal(cell)) {
-        cout << cell->GetName() << " insert Not Legal" << endl;
-    }
+    // if(!Legal(cell)) {
+    //     cout << cell->GetName() << " insert Not Legal" << endl;
+    // }
     double y = cell->DOWN();
     while(y < cell->TOP() && y <= TOP()) {
         int row = GetRow(y);
