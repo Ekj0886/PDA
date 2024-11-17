@@ -33,8 +33,8 @@ void LEGALIZER::RunOpt(string& opt_file) {
 
     legal_num = 0;
     illegal_num = 0;
-    // while(opt >> __) {
-    for(int q = 0; q < 2; q++) { opt >> __;
+    while(opt >> __) {
+    // for(int q = 0; q < 10; q++) { opt >> __;
 
         string cell_name;
         double x, y, w, h;
@@ -50,24 +50,27 @@ void LEGALIZER::RunOpt(string& opt_file) {
         opt >> cell_name >> x >> y >> w >> h;
         CELL* merge_cell = new CELL(cell_name, x, y, w, h, 0);
         merge_cell->merge = true;
+
         
         if(!PR.Legal(merge_cell)) {
-            // if(SpaceSearch(merge_cell)) {
-            //     // cout << "pass " << legal_num << endl;
-            //     DumpOutput(merge_cell);
-            // }
             if(SRTetris(merge_cell)) {
-                DumpOutput(merge_cell);
+                cout << "push pass " << legal_num << endl;
+                DumpMoved(merge_cell);
+            }
+            else if(SpaceSearch(merge_cell)) {
+                cout << "space pass " << legal_num << endl;
+                DumpSpace(merge_cell);
             }
             else {
+                cout << "fail " << illegal_num << endl;
                 illegal_num ++;
             }
         
-        } else {
+        } 
+        else {
             legal_num++;
             AddCell(merge_cell);
-            // cout << "pass " << legal_num << endl;
-            DumpOutput(merge_cell);
+            DumpSpace(merge_cell);
         } 
 
         
@@ -79,12 +82,8 @@ void LEGALIZER::RunOpt(string& opt_file) {
 
 }   
 
-void LEGALIZER::AddCell(CELL* cell) {
-    PR.Insert(cell);
-    Cellmap[cell->GetName()] = cell;
-}
-
 bool LEGALIZER::SpaceSearch(CELL* cell) {
+    // cout << "Start Space search" << endl;
     if(PR.FindVacant(cell)) {
         legal_num++;
         AddCell(cell);
@@ -102,22 +101,53 @@ bool LEGALIZER::SpaceSearch(CELL* cell) {
 }
 
 bool LEGALIZER::SRTetris(CELL* cell) {
-    // double x = cell->LEFT();
-    // double y = cell->DOWN();
-
     if(PR.FindSRVacant(cell)) {
-        cout << "==========================================================================================================================" << endl;
-        cout << "<SRTetris> " << cell->GetName() << " " << cell->LEFT() << " " << cell->DOWN() << " " << cell->TOP() << " " << cell->RIGHT() << endl;
-        cout << "==========================================================================================================================" << endl;
         if(PR.Legalize(cell)) {
             legal_num++;
-            AddCell(cell);
+            Cellmap[cell->GetName()] = cell;
             return true;
         }
     }
-    // cell->SetXY(x, y);
-    // cout << 
     return false;
+}
+
+void LEGALIZER::AddCell(CELL* cell) {
+    PR.Insert(cell);
+    Cellmap[cell->GetName()] = cell;
+}
+
+void LEGALIZER::DumpSpace(CELL* cell) {
+
+    ofstream outfile(out_file, ios::app);
+
+    if (!outfile) {
+        cerr << "Error: Could not open file " << out_file << endl;
+        return;
+    }
+    
+    outfile << fixed << cell->LEFT() << " " << cell->DOWN() << endl;
+    outfile << "0" << endl;
+
+}
+
+void LEGALIZER::DumpMoved(CELL* merge_cell) {
+    
+    ofstream outfile(out_file, ios::app);
+
+    if (!outfile) {
+        cerr << "Error: Could not open file " << out_file << endl;
+        return;
+    }
+
+    outfile << fixed << merge_cell->LEFT() << " " << merge_cell->DOWN() << endl;
+
+    outfile << PR.CellMem.size() << endl;
+
+    for(auto cptr : PR.CellMem) {
+        CELL* cell = cptr.F;
+        outfile << cell->GetName() << " " << cell->LEFT() << " " << cell->DOWN() << endl;
+    }
+
 }
 
 void LEGALIZER::DumpLayout(string file) {
@@ -130,19 +160,4 @@ void LEGALIZER::DumpLayout(string file) {
         outfile << fixed << cell->LEFT() << " " << cell->DOWN() << " " << cell->GetW() << " " << cell->GetH() << " " << cell->Fix() << " " << cell->merge << endl;
     }
     cout << "== Dump Layout" << endl;
-}
-
-void LEGALIZER::DumpOutput(CELL* cell) {
-
-    ofstream outfile(out_file, ios::app);
-
-    if (!outfile) {
-        cerr << "Error: Could not open file " << out_file << endl;
-        return;
-    }
-    
-    outfile << fixed << cell->LEFT() << " " << cell->DOWN() << endl;
-    outfile << "0" << endl;
-
-
 }

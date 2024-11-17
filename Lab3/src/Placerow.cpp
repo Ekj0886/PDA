@@ -17,8 +17,8 @@ void PLACEROW::Init(int row, int site, double h, double x, double y) {
 
     placement_row.resize(row);
     space.resize(row);
-    CELL* pseudo_cell_left = new CELL("L", xcoor-1, 0, 1, 0, 1);
-    CELL* pseudo_cell_right = new CELL("R", xcoor + site_num - 1, 0, 1, 0, 1);
+    CELL* pseudo_cell_left = new CELL("L", Die.lowerX-1, 0, 1, 0, 1);
+    CELL* pseudo_cell_right = new CELL("R", Die.upperX, 0, 1, 0, 1);
     pseudo_cell_left->pseudo = true; 
     pseudo_cell_right->pseudo = true;
     for(int r = 0; r < row; r++) {
@@ -28,8 +28,6 @@ void PLACEROW::Init(int row, int site, double h, double x, double y) {
         space[r] = site_num;
     }
 }
-
-
 
 bool PLACEROW::FindVacant(CELL* cell) {
     // cout << "== Find Vacant" << endl;
@@ -56,15 +54,19 @@ bool PLACEROW::FindVacant(CELL* cell) {
         }
     }
 
-
     while(!q.empty()) {
         Rptr rptr = q.front();
         q.pop_front();
+
+        // cout << (*rptr)->GetName() << endl;
         
         if((*rptr)->GetName() != "R") {
+
             if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
             else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
+            // cout << "set " << cell->LEFT() << endl;
             if(Legal(cell)) return true;
+            
             else if(!(*rptr)->pseudo){
                 if(cell->LEFT() > x_origin) rptr++;
                 else rptr = prev(rptr);
@@ -113,13 +115,15 @@ bool PLACEROW::SingleVacant(CELL* cell) {
 }
 
 bool PLACEROW::DumbFill(CELL* cell) {
-    // cout << "Dumbfill" << endl;
+
+    double origin_x = cell->LEFT();
+    double origin_y = cell->DOWN();
+
     int row = GetRow(cell->DOWN());
     int range = max(row, row_num-row);
     int new_row; 
 
     for(int r = GetTrack(cell); r < range; r += 1) {
-    // for(int r = GetTrack(cell); r < range; r += 2*GetTrack(cell)) {
 
         new_row = row + r;
 
@@ -136,11 +140,14 @@ bool PLACEROW::DumbFill(CELL* cell) {
         }
 
     }
+
+    cell->SetXY(origin_x, origin_y);
+
     return false;
 }
 
 bool PLACEROW::FindSRVacant(CELL* cell) {
-    // cout << "== Find Vacant" << endl;
+    // cout << "== Find SRVacant" << endl;
 
     if(SRLegal(cell)) return true;
 
@@ -168,21 +175,37 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
         }
     }
 
+    // cout << "start find" << endl;
 
     while(!q.empty()) {
         Rptr rptr = q.front();
         q.pop_front();
+
+        if(SRLegal(cell)) return true;
         
         if((*rptr)->GetName() != "R") {
             if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
             else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
+
             if(SRLegal(cell)) return true;
+
             else if(!(*rptr)->pseudo){
-                if(cell->LEFT() > x_origin) rptr++;
-                else rptr = prev(rptr);
-                q.push_back(rptr);   
+                if(cell->LEFT() > x_origin) {
+                    if(!(*(++rptr))->pseudo) {
+                        q.push_back(rptr);   
+                    }
+                }
+                else {
+                    if(!(*(prev(rptr)))->pseudo) {
+                        rptr = prev(rptr);
+                        q.push_back(rptr);  
+                    }
+                }
+                
             }
+
         }
+        // cout << "nxt" << endl;
     }
     cell->SetXY(x_origin, y_origin);
     // cout << "Not found" << endl;
@@ -193,58 +216,67 @@ bool PLACEROW::FindSRVacant(CELL* cell) {
 bool PLACEROW::Legalize(CELL* cell) {   
 
     CellMem.clear();
+
+    vector<CELL*> overlap;
+    overlap.clear();
+
+    double y = cell->DOWN();
+    while(y < cell->TOP() && y <= TOP()) {
+
+        int row = GetRow(y);
+        Rptr ub = RowSet(row)->lower_bound(cell);
+        Rptr lb = prev(ub);
+
+        // check lowerbound
+        CELL* lb_cell = (*lb);
+        if(Overlap(cell, lb_cell)) {
+            overlap.push_back(lb_cell);
+            Remove(lb_cell);
+        }
+        // check upper bound
+        CELL* ub_cell = (*ub);
+        while(Overlap(cell, ub_cell)) {
+            overlap.push_back(ub_cell);
+            ub++;
+            Remove(ub_cell);
+            ub_cell = (*ub);
+        }
+
+        y += height;
     
-    if(Legal(cell)) return true;
-    // if(SRLegal(cell)) cout << "SRLegal" << endl;
+    }
+    
+    Insert(cell);
+    
+    for(CELL* c : overlap) {
 
-    SetBound(cell);
+        double origin_x = c->LEFT();
 
-    // Push right
-    if(InitR(cell)) {
-        if(PushRight()) {
-            // cout << "== Push R succeed" << endl;
-            // DumpMem();
+        if(c->merge) cout << "merge" << endl;
+        // else         cout << "not merge" << endl;
+        
+        if(!DumbFill(c)) {
+            Remove(cell);
+            Restore();
+            return false;
         }
         else {
-            // cout << "== Push R fail" << endl;
-            // Restore();
+            CellMem[c] = origin_x;
+            Insert(c);
         }
-    }
-    else {
-        cout << "== Init R fail" << endl;
-        return false;
+
     }
 
-    // Push Left
-    if(InitL(cell)) {
-        if(PushLeft()) {
-            // cout << "== Push L succeed" << endl;
-            // DumpMem();
-        }
-        else {
-            // cout << "== Push L fail" << endl;
-            // Restore();
-        }
-    }
-    else {
-        cout << "== Init L fail" << endl;
-        return false;
-    }
+    return true;
 
-
-    if(Legal(cell)) {
-        cout << "Success" << endl;
-        cout << cell->LEFT() << " " << cell->DOWN() << endl;
-        DumpMem();
-        return true;
-    }
-    else {
-        cout << "Fail" << endl;
-        Restore();
-        return false;
-    }           
-    
 }
 
-
+void PLACEROW::Restore() {
+    for (auto& cptr : CellMem) {
+        CELL* c = cptr.F;
+        Remove(c); 
+        c->SetXY(cptr.S, c->DOWN());
+        Insert(c);
+    }
+}
 

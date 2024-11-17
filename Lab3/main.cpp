@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
     LEGALIZER LGR;
     LGR.parse(input_lg, output_lg);
     LGR.PlaceCell();
+
     LGR.RunOpt(input_opt);
 
     clock.EndTimer();

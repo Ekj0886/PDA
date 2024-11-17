@@ -14,6 +14,21 @@ int PLACEROW::GetTrack(CELL* cell) {
     return cell->GetH() / height;
 }
 
+bool PLACEROW::H_overlap(CELL* c1, CELL* c2) {
+    return c1->LEFT() < c2->RIGHT() && c1->RIGHT() > c2->LEFT();
+}
+
+bool PLACEROW::V_overlap(CELL* c1, CELL* c2) {
+    return c1->DOWN() < c2->TOP() && c1->TOP() > c2->DOWN();
+}
+
+
+bool PLACEROW::Overlap(CELL* c1, CELL* c2) {
+    bool H_overlap = c1->LEFT() < c2->RIGHT() && c1->RIGHT() > c2->LEFT();
+    bool V_overlap = c1->DOWN() < c2->TOP() && c1->TOP() > c2->DOWN();
+    return H_overlap && V_overlap;
+}
+
 bool PLACEROW::Legal(CELL* cell) {
 
     // fix cell y if not on site
@@ -41,8 +56,8 @@ bool PLACEROW::Legal(CELL* cell) {
         CELL* lb_cell = *lb;
         
         // Check if an upper bound & lower bound
-        if(!lb_cell->pseudo && lb_cell->RIGHT() > cell->LEFT()) return false;
-        if(!ub_cell->pseudo && ub_cell->LEFT() < cell->RIGHT()) return false;
+        if(!lb_cell->pseudo && Overlap(cell, lb_cell)) return false;
+        if(!ub_cell->pseudo && Overlap(cell, ub_cell)) return false;
 
         y += height;
     }
@@ -74,20 +89,17 @@ bool PLACEROW::SRLegal(CELL* cell) {
         Rptr ub = RowSet(row)->lower_bound(cell);
         Rptr lb = prev(ub);
 
-        while(!(*ub)->Fix() && !(*ub)->pseudo) ub++;
-        while(!(*lb)->Fix() && !(*lb)->pseudo) lb--;
-
         CELL* ub_cell = *ub;
         CELL* lb_cell = *lb;
 
         // cout << ub_cell->GetName() << " " << lb_cell->GetName() << endl;
 
-        bool ub_sr = (ub_cell->Fix());
-        bool lb_sr = (lb_cell->Fix());
+        bool ub_sr = (ub_cell->Fix() || ub_cell->merge);
+        bool lb_sr = (lb_cell->Fix() || lb_cell->merge);
 
         // Check if an upper bound & lower bound
-        if(!lb_cell->pseudo && lb_cell->RIGHT() > cell->LEFT() && lb_sr) return false;
-        if(!ub_cell->pseudo && ub_cell->LEFT() < cell->RIGHT() && ub_sr) return false;
+        if(!lb_cell->pseudo && Overlap(cell, lb_cell) && lb_sr) return false;
+        if(!ub_cell->pseudo && Overlap(cell, ub_cell) && ub_sr) return false;
 
         y += height;
     }
@@ -95,9 +107,6 @@ bool PLACEROW::SRLegal(CELL* cell) {
     return true;
 
 }
-
-
-
 
 void PLACEROW::PrintRow(int row) {
     cout << row << ": ";
@@ -111,20 +120,20 @@ void PLACEROW::PrintRow(int row) {
     }cout << endl;
 }
 
-
 void PLACEROW::PrintPR() {
     for(int i = row_num-1; i >= 0; i--) {
         PrintRow(i);
     }
 }
 
-
 void PLACEROW::Insert(CELL* cell) {
+    if(!Legal(cell)) {
+        cout << cell->GetName() << " insert Not Legal" << endl;
+    }
     double y = cell->DOWN();
     while(y < cell->TOP() && y <= TOP()) {
         int row = GetRow(y);
         RowSet(row)->insert(cell);
-        // space[row] -= cell->GetW();
         y += height;
     }
 }
@@ -142,8 +151,6 @@ void PLACEROW::Remove(CELL* cell) {
         y += height;
     }
 }
-
-
 
 bool PLACEROW::InBound(int row) {
     return (row >= 0 && row < row_num);

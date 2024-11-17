@@ -30,11 +30,11 @@ public:
     void PlaceCell();
     void RunOpt(string&);
     void AddCell(CELL*);
-    void Legalize(CELL*);
     bool SpaceSearch(CELL*);
     bool SRTetris(CELL*);
     void DumpLayout(string);
-    void DumpOutput(CELL*);
+    void DumpSpace(CELL*);
+    void DumpMoved(CELL*);
     
 };
 

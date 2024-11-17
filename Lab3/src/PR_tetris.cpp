@@ -18,13 +18,6 @@ void PLACEROW::SetBound(CELL* cell) {
     LB = min( max(LB, ycoor), Die.upperY ); 
 }
 
-bool PLACEROW::H_overlap(CELL* c1, CELL* c2) {
-    return c1->LEFT() < c2->RIGHT() && c1->RIGHT() > c2->LEFT();
-}
-
-bool PLACEROW::V_overlap(CELL* c1, CELL* c2) {
-    return c1->DOWN() < c2->TOP() && c1->TOP() > c2->DOWN();
-}
 
 bool PLACEROW::isBlk(CELL* cell) {
     if(cell->Fix() || cell->TOP() > UB || cell->DOWN() < LB) return true;
@@ -65,16 +58,6 @@ void PLACEROW::DumpMem() {
     cout << "== Dump memory" << endl;
     for (auto& cptr : CellMem) {
         CELL* c = cptr.F;
-        // Remove(c);
-        if(!Legal(c)) cout << c->GetName() << " Not legal" << endl;
-        Insert(c);
-    }
-}
-
-void PLACEROW::Restore() {
-    for (auto& cptr : CellMem) {
-        CELL* c = cptr.F;
-        c->SetXY(cptr.S, c->DOWN());
         Insert(c);
     }
 }
@@ -239,6 +222,7 @@ bool PLACEROW::PushRight() {
             cout << "       push " << cell->GetName() << endl;
 
             CellMem[cell] = cell->LEFT();
+
             Remove(cell);
             cell->SetXY(CellRX(cell), cell->DOWN());
             if(!FindR(cell)) return false;
@@ -439,3 +423,6 @@ bool PLACEROW::PushLeft() {
     return true;
 
 }
+
+
+

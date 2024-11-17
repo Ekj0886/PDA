@@ -51,6 +51,7 @@ public:
     void SetBound(CELL*);
     bool H_overlap(CELL*, CELL*);
     bool V_overlap(CELL*, CELL*);
+    bool Overlap(CELL*, CELL*);
     bool isBlk(CELL*);
     void PrintX();
     void PrintPTR();
