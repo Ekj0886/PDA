@@ -39,7 +39,6 @@ void LEGALIZER::RunOpt(string& opt_file) {
     int space_num = 0;
 
     while(opt >> __) {
-    // for(int q = 0; q < 1632; q++) { opt >> __;
 
         string cell_name;
         double x, y, w, h;

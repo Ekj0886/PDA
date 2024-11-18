@@ -29,9 +29,6 @@ void PLACEROW::Init(int row, int site, double h, double x, double y) {
     }
 }
 
-
-
-
 bool PLACEROW::FindVacant(CELL* cell) {
     
     // load search list
@@ -58,8 +55,6 @@ bool PLACEROW::FindVacant(CELL* cell) {
 
     } 
 
-    // cout << Search.size() << endl;
-
     for(const PT p : Search) {
         cell->SetXY(p.x, p.y);
         if(Legal(cell)) return true;
@@ -70,29 +65,23 @@ bool PLACEROW::FindVacant(CELL* cell) {
 
 }
 
-
 bool PLACEROW::SingleVacant(CELL* cell) {
-    // cout << "== Find Vacant" << endl;
     
     // load search list
     Search.clear();
     int start_row = GetRow(cell->DOWN());
-    // int end_row   = min( (int)ceil(cell->GetH() / height) + start_row - 1, row_num - 1);
 
-    // for(int row = start_row; row <= end_row; row++) {
-        int row = start_row;
-        for(const CELL* c : *RowSet(row)) {
-            PT lpt(c->LEFT() - cell->GetW(), cell->DOWN());
-            lpt.dis = abs(lpt.x - origin_x) + abs(lpt.y - origin_y);    
-            Search.insert(lpt);
+    int row = start_row;
+    for(const CELL* c : *RowSet(row)) {
+        PT lpt(c->LEFT() - cell->GetW(), cell->DOWN());
+        lpt.dis = abs(lpt.x - origin_x) + abs(lpt.y - origin_y);    
+        Search.insert(lpt);
 
-            PT rpt(c->RIGHT(), cell->DOWN());
-            rpt.dis = abs(rpt.x - origin_x) + abs(rpt.y - origin_y);    
-            Search.insert(rpt);
-            
-        }
-    // } 
-
+        PT rpt(c->RIGHT(), cell->DOWN());
+        rpt.dis = abs(rpt.x - origin_x) + abs(rpt.y - origin_y);    
+        Search.insert(rpt);
+    }
+   
     for(const PT p : Search) {
         cell->SetXY(p.x, p.y);
         if(Legal(cell)) return true;
@@ -211,7 +200,7 @@ bool PLACEROW::Legalize(CELL* cell) {
         double xo = c->LEFT();
         double yo = c->DOWN();
         
-        if(distance > (Die.upperX - Die.lowerX) / 4) {
+        if(distance > (Die.upperX - Die.lowerX) / 5) {
             Remove(cell);
             Restore();
             return false;
@@ -242,7 +231,6 @@ void PLACEROW::Restore() {
         Remove(c); 
         c->SetXY(mem.xo, mem.yo);
         Insert(c);
-        
     }
 
     // restore deleted cell
@@ -251,9 +239,6 @@ void PLACEROW::Restore() {
     }
 
 }
-
-
-
 
 bool PLACEROW::FastVacant(CELL* cell) {
 

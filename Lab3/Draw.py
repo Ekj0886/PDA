@@ -30,7 +30,7 @@ def parse_placement_data(file_path):
 # Function to plot placement and save as a high-resolution PNG
 def plot_placement(die_lower_x, die_lower_y, die_upper_x, die_upper_y, cells, png_name):
     # Increase figure size for large placements
-    fig, ax = plt.subplots(figsize=(20, 20))  # Adjust figsize as needed
+    fig, ax = plt.subplots(figsize=(10, 10))  # Adjust figsize as needed
     
     # Draw the die area with a thinner border line
     die_width = die_upper_x - die_lower_x
@@ -42,20 +42,24 @@ def plot_placement(die_lower_x, die_lower_y, die_upper_x, die_upper_y, cells, pn
     # Draw each cell with a border color based on "fix" status and white face color
     cell_patches = []
     edge_colors = []
+    fc_colors = []
     for (lowerleft_x, lowerleft_y, width, height, fix, merge) in cells:
         if fix == 1:
             edge_color = 'red'
-            
+            fc = 'white'
         elif merge == 1:
             edge_color = 'green'
+            fc = 'aquamarine'
         else:
             edge_color = 'blue'
+            fc = 'white'
         cell_rect = patches.Rectangle((lowerleft_x, lowerleft_y), width, height, facecolor='none')
         cell_patches.append(cell_rect)
         edge_colors.append(edge_color)
+        fc_colors.append(fc)
     
     # Add all cells to the plot as a PatchCollection with custom edge colors
-    cell_collection = PatchCollection(cell_patches, facecolor='white', edgecolor=edge_colors, linewidths=0.2, alpha=1)
+    cell_collection = PatchCollection(cell_patches, facecolor=fc_colors, edgecolor=edge_colors, linewidths=0.2, alpha=1)
     ax.add_collection(cell_collection)
     
     # Set the plot limits and aspect ratio
