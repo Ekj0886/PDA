@@ -1,4 +1,1 @@
 python3 draw.py floorplan/SP_Init_ami33.txt SP_Init_ami33
-python3 draw.py floorplan/SP_Stage0_ami33.txt SP_Stage0_ami33
-python3 draw.py floorplan/SP_Stage1_ami33.txt SP_Stage1_ami33
-python3 draw.py floorplan/SP_Stage2_ami33.txt SP_Stage2_ami33

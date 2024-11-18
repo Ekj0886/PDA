@@ -1,4 +1,2 @@
-./verifier 0.5 ami33/ami33.block ami33/ami33.nets output/ami33
-rm output/ami33.HPWL
-./verifier 1 ami33/ami33.block ami33/ami33.nets output/ami33
+./verifier 0.2 ami33/ami33.block ami33/ami33.nets output/ami33
 rm output/ami33.HPWL
