@@ -29,95 +29,81 @@ void PLACEROW::Init(int row, int site, double h, double x, double y) {
     }
 }
 
+
+
+
 bool PLACEROW::FindVacant(CELL* cell) {
-    // cout << "== Find Vacant" << endl;
-    int track = GetTrack(cell);
-    int row = GetRow(cell->DOWN());
-
-    double x_origin = cell->LEFT(), y_origin = cell->DOWN();
     
-    deque<Rptr> q;
+    // load search list
+    Search.clear();
+    int start_row = GetRow(cell->DOWN());
+    int end_row   = min( (int)ceil(cell->GetH() / height) + start_row - 1, row_num - 1);
 
-    Rptr ub = RowSet(row)->lower_bound(cell);
-    Rptr lb = prev(ub);
-
-    q.push_back(ub);
-    q.push_back(lb);
-
-    for(int i = 1; i <= track; i++) {
-        int Urow = row + i;
-        if(Urow < row_num && Urow >= 0) {
-            Rptr u = RowSet(Urow)->lower_bound(cell);
-            Rptr l = prev(u);
-            q.push_back(u);
-            q.push_back(l);
-        }
-    }
-
-    while(!q.empty()) {
-        Rptr rptr = q.front();
-        q.pop_front();
-
-        // cout << (*rptr)->GetName() << endl;
+    for(int row = start_row; row <= end_row; row++) {
         
-        if((*rptr)->GetName() != "R") {
+        for(const CELL* c : *RowSet(row)) {
+            for(int y = start_row; y <= end_row; y++) {
+                
+                double y_point = ycoor + y*height;
 
-            if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
-            else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
-            // cout << "set " << cell->LEFT() << endl;
-            if(Legal(cell)) return true;
-            
-            else if(!(*rptr)->pseudo){
-                if(cell->LEFT() > x_origin) rptr++;
-                else rptr = prev(rptr);
-                q.push_back(rptr);   
+                PT lpt(c->LEFT() - cell->GetW(), y_point);
+                lpt.dis = abs(lpt.x - origin_x) + abs(lpt.y - origin_y);    
+                Search.insert(lpt);
+
+                PT rpt(c->RIGHT(), y_point);
+                rpt.dis = abs(rpt.x - origin_x) + abs(rpt.y - origin_y);    
+                Search.insert(rpt);
             }
         }
+
+    } 
+
+    // cout << Search.size() << endl;
+
+    for(const PT p : Search) {
+        cell->SetXY(p.x, p.y);
+        if(Legal(cell)) return true;
     }
-    cell->SetXY(x_origin, y_origin);
+
+    cell->SetXY(origin_x, origin_y);
     return false;
 
 }
 
+
 bool PLACEROW::SingleVacant(CELL* cell) {
     // cout << "== Find Vacant" << endl;
-    int row = GetRow(cell->DOWN());
-
-    double x_origin = cell->LEFT(), y_origin = cell->DOWN();
     
-    deque<Rptr> q;
+    // load search list
+    Search.clear();
+    int start_row = GetRow(cell->DOWN());
+    // int end_row   = min( (int)ceil(cell->GetH() / height) + start_row - 1, row_num - 1);
 
-    Rptr ub = RowSet(row)->lower_bound(cell);
-    Rptr lb = prev(ub);
+    // for(int row = start_row; row <= end_row; row++) {
+        int row = start_row;
+        for(const CELL* c : *RowSet(row)) {
+            PT lpt(c->LEFT() - cell->GetW(), cell->DOWN());
+            lpt.dis = abs(lpt.x - origin_x) + abs(lpt.y - origin_y);    
+            Search.insert(lpt);
 
-    q.push_back(ub);
-    q.push_back(lb);
-
-
-    while(!q.empty()) {
-        Rptr rptr = q.front();
-        q.pop_front();
-        
-        if((*rptr)->GetName() != "R") {
-            if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
-            else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
-            if(Legal(cell)) return true;
-            else if(!(*rptr)->pseudo){
-                if(cell->LEFT() > x_origin) rptr++;
-                else rptr = prev(rptr);
-                q.push_back(rptr);   
-            }
+            PT rpt(c->RIGHT(), cell->DOWN());
+            rpt.dis = abs(rpt.x - origin_x) + abs(rpt.y - origin_y);    
+            Search.insert(rpt);
+            
         }
+    // } 
+
+    for(const PT p : Search) {
+        cell->SetXY(p.x, p.y);
+        if(Legal(cell)) return true;
     }
-    cell->SetXY(x_origin, y_origin);
+
+    cell->SetXY(origin_x, origin_y);
     return false;
 
 }
 
 bool PLACEROW::DumbFill(CELL* cell) {
-
-    double origin_x = cell->LEFT();
-    double origin_y = cell->DOWN();
 
     int row = GetRow(cell->DOWN());
     int range = max(row, row_num-row);
@@ -127,14 +113,14 @@ bool PLACEROW::DumbFill(CELL* cell) {
 
         new_row = row + r;
 
-        if( space[r] > 10*cell->GetW() && InBound(new_row) ) {
+        if( InBound(new_row) ) {
             cell->SetXY(cell->LEFT(), ycoor + new_row*height);
             if(SingleVacant(cell)) return true;
         }
         
         new_row = row - r;
 
-        if( space[r] > 10*cell->GetW() && InBound(new_row) ) {
+        if( InBound(new_row) ) {
             cell->SetXY(cell->LEFT(), ycoor + new_row*height);
             if(SingleVacant(cell)) return true;
         }
@@ -147,148 +133,116 @@ bool PLACEROW::DumbFill(CELL* cell) {
 }
 
 bool PLACEROW::FindSRVacant(CELL* cell) {
-    // cout << "== Find SRVacant" << endl;
+    // load search list
+    Search.clear();
+    int start_row = GetRow(cell->DOWN());
+    int end_row   = min( (int)ceil(cell->GetH() / height) + start_row - 1, row_num - 1);
 
-    if(SRLegal(cell)) return true;
-
-    int track = GetTrack(cell);
-    int row = GetRow(cell->DOWN());
-
-    double x_origin = cell->LEFT(), y_origin = cell->DOWN();
-    
-    deque<Rptr> q;
-
-    Rptr ub = RowSet(row)->lower_bound(cell);
-    Rptr lb = prev(ub);
-
-    q.push_back(ub);
-    q.push_back(lb);
-
-    for(int i = 1; i <= track; i++) {
-        int Urow = row + i;
-
-        if(Urow < row_num && Urow >= 0) {
-            Rptr u = RowSet(Urow)->lower_bound(cell);
-            Rptr l = prev(u);
-            q.push_back(u);
-            q.push_back(l);
-        }
-    }
-
-    // cout << "start find" << endl;
-
-    while(!q.empty()) {
-        Rptr rptr = q.front();
-        q.pop_front();
-
-        if(SRLegal(cell)) return true;
+    for(int row = start_row; row <= end_row; row++) {
         
-        if((*rptr)->GetName() != "R") {
-            if((*rptr)->LEFT() > x_origin) cell->SetXY((*rptr)->RIGHT(), cell->DOWN());
-            else cell->SetXY((*rptr)->LEFT()-cell->GetW(), cell->DOWN());
-
-            if(SRLegal(cell)) {
-                distance += ( abs(cell->LEFT() - x_origin) + abs(cell->DOWN() - y_origin) );
-                return true; 
-            }
-
-            else if(!(*rptr)->pseudo){
-                if(cell->LEFT() > x_origin) {
-                    if(!(*(++rptr))->pseudo) {
-                        q.push_back(rptr);   
-                    }
-                }
-                else {
-                    if(!(*(prev(rptr)))->pseudo) {
-                        rptr = prev(rptr);
-                        q.push_back(rptr);  
-                    }
-                }
+        for(const CELL* c : *RowSet(row)) {
+            if(!c->Fix()) continue;
+            for(int y = start_row; y <= end_row; y++) {
                 
-            }
+                double y_point = ycoor + y*height;
 
+                PT lpt(c->LEFT() - cell->GetW(), y_point);
+                lpt.dis = abs(lpt.x - origin_x) + abs(lpt.y - origin_y);    
+                Search.insert(lpt);
+
+                PT rpt(c->RIGHT(), y_point);
+                rpt.dis = abs(rpt.x - origin_x) + abs(rpt.y - origin_y);    
+                Search.insert(rpt);
+            }
         }
-        // cout << "nxt" << endl;
+
+    } 
+
+    for(const PT p : Search) {
+        cell->SetXY(p.x, p.y);
+        if(SRLegal(cell)) {
+            return true;
+        }
     }
-    cell->SetXY(x_origin, y_origin);
-    // cout << "Not found" << endl;
+
+    cell->SetXY(origin_x, origin_y);
     return false;
 
 }
 
 bool PLACEROW::Legalize(CELL* cell) {   
-    
     CellMem.clear();
     overlap.clear();
+    overlap_check.clear();
 
-    double y = cell->DOWN();
-    while(y < cell->TOP() && y <= TOP()) {
-
-        int row = GetRow(y);
-        Rptr ub = RowSet(row)->lower_bound(cell);
-        Rptr lb = prev(ub);
-
-        // check lowerbound
-        CELL* lb_cell = (*lb);
-        if(Overlap(cell, lb_cell)) {
-            overlap.push_back(lb_cell);
-            Remove(lb_cell);
-        }
-        // check upper bound
-        CELL* ub_cell = (*ub);
-        while(Overlap(cell, ub_cell)) {
-            overlap.push_back(ub_cell);
-            ub++;
-            Remove(ub_cell);
-            ub_cell = (*ub);
-        }
-
-        y += height;
+    if(Legal(cell)) {
+        Insert(cell);
+        return true;
+    }
+    distance += cell->DIFF();
     
+
+    int start_row = GetRow(cell->DOWN());
+    int end_row   = min( (int)ceil(cell->GetH() / height) + start_row - 1, row_num - 1);
+    
+    for(int row = start_row; row <= end_row; row++) {
+
+        for(CELL* c : *RowSet(row)) {
+            if(Overlap(cell, c) && overlap_check.find(c) == overlap_check.end()) {
+                if(c->Fix()) return false; // overlap with fix cell
+                overlap_check.insert(c);
+                overlap.push_back(c);
+            }
+        }
+
     }
     
+    for(CELL* rmc : overlap) {
+        Remove(rmc);
+    }
+
     Insert(cell);
+    
     
     while(!overlap.empty()) {
 
         CELL* c = overlap.front();
-        overlap.pop_front();
 
-        double origin_x = c->LEFT();
-        double origin_y = c->DOWN();
+        double xo = c->LEFT();
+        double yo = c->DOWN();
         
-        if(!DumbFill(c)) {
+        if(distance > (Die.upperX - Die.lowerX) / 4) {
+            Remove(cell);
+            Restore();
+            return false;
+        } 
+
+        if(FastVacant(c)) {
+            Insert(c);
+            Mem mem(c, xo, yo);
+            CellMem.push_back(mem);
+            distance += c->DIFF();
+            overlap.pop_front();
+        }
+        else {
             Remove(cell);
             Restore();
             return false;
         }
-        else {
-            CellMem[c] = make_pair(origin_x, origin_y);
-            Insert(c);
-            distance += ( abs(c->LEFT() - origin_x) + abs(c->DOWN() - origin_y) );
-
-            if(distance >= (Die.upperX - Die.lowerX + Die.upperY - Die.lowerY) / 10) {
-                Remove(cell);
-                Restore();
-                return false;
-            }
-            
-        }
 
     }
-
+    
     return true;
 
 }
 
 void PLACEROW::Restore() {
-    
-    // restore modified cell
-    for (auto& cptr : CellMem) {
-        CELL* c = cptr.F;
+    for (auto mem : CellMem) {
+        CELL* c = mem.c;
         Remove(c); 
-        c->SetXY(cptr.S.F, cptr.S.S);
+        c->SetXY(mem.xo, mem.yo);
         Insert(c);
+        
     }
 
     // restore deleted cell
@@ -298,3 +252,35 @@ void PLACEROW::Restore() {
 
 }
 
+
+
+
+bool PLACEROW::FastVacant(CELL* cell) {
+
+    double xo = cell->LEFT(), yo = cell->DOWN();
+
+    Search.clear();
+    int start_row = GetRow(cell->DOWN());
+
+    int row = start_row;
+    for(const CELL* c : *RowSet(row)) {
+        PT lpt(c->LEFT() - cell->GetW(), cell->DOWN());
+        lpt.dis = abs(lpt.x - xo) + abs(lpt.y - yo);    
+        Search.insert(lpt);
+
+        PT rpt(c->RIGHT(), cell->DOWN());
+        rpt.dis = abs(rpt.x - xo) + abs(rpt.y - yo);    
+        Search.insert(rpt);
+        
+    }
+    
+
+    for(const PT p : Search) {
+        cell->SetXY(p.x, p.y);
+        if(Legal(cell)) return true;
+    }
+
+    cell->SetXY(xo, yo);
+    return false;
+
+}

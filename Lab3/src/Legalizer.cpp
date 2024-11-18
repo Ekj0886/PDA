@@ -39,7 +39,7 @@ void LEGALIZER::RunOpt(string& opt_file) {
     int space_num = 0;
 
     while(opt >> __) {
-    // for(int q = 0; q < 10; q++) { opt >> __;
+    // for(int q = 0; q < 1632; q++) { opt >> __;
 
         string cell_name;
         double x, y, w, h;
@@ -51,33 +51,31 @@ void LEGALIZER::RunOpt(string& opt_file) {
             delete cell;
             Cellmap.erase(cell_name);
         }
-
         opt >> cell_name >> x >> y >> w >> h;
         CELL* merge_cell = new CELL(cell_name, x, y, w, h, 0);
         merge_cell->merge = true;
         
         if(!PR.Legal(merge_cell)) {
             if(SRTetris(merge_cell)) {
-                cout << "Moved pass " << legal_num << ": " << merge_cell->GetName() << endl;
                 DumpMoved(merge_cell);
                 moved_num++;
+                // cout << "pass " << legal_num << endl;
             }
-            else if(SpaceSearch(merge_cell)) {
-                cout << "Space pass " << legal_num << ": " << merge_cell->GetName() << endl;
+            else if(SpaceSearch(merge_cell)) {  
                 DumpSpace(merge_cell);
                 space_num++;
+                // cout << "pass " << legal_num << endl;
             }
             else {
-                cout << "Fail " << illegal_num << ": " << merge_cell->GetName() << endl;
+                // cout << "Fail " << illegal_num << ": " << merge_cell->GetName() << endl;
                 illegal_num ++;
             }
         
         } 
         else {
-            cout << "Space pass " << legal_num << ": " << merge_cell->GetName() << endl;
+            // cout << "pass " << legal_num << endl;
             AddCell(merge_cell);
             DumpSpace(merge_cell);
-            legal_num++;
             space_num++;
         } 
 
@@ -93,30 +91,35 @@ void LEGALIZER::RunOpt(string& opt_file) {
 }   
 
 bool LEGALIZER::SpaceSearch(CELL* cell) {
-    // cout << "Start Space search" << endl;
+    // cout << "space ";
+    PR.origin_x = cell->LEFT();
+    PR.origin_y = cell->DOWN();
     if(PR.FindVacant(cell)) {
-        legal_num++;
+        // cout << "vacant" << endl;
         AddCell(cell);
         return true;
     }
     else if(PR.DumbFill(cell)) {
+        // cout << "dumb" << endl;
         AddCell(cell);
-        legal_num++;
         return true;
     }
     else {
-        illegal_num++;
         return false;
     }
 }
 
 bool LEGALIZER::SRTetris(CELL* cell) {
     PR.distance = 0;
+    PR.origin_x = cell->LEFT();
+    PR.origin_y = cell->DOWN();
     if(PR.FindSRVacant(cell)) {
         if(PR.Legalize(cell)) {
-            legal_num++;
             Cellmap[cell->GetName()] = cell;
             return true;
+        }
+        else {
+            return false;
         }
     }
     return false;
@@ -129,6 +132,7 @@ void LEGALIZER::AddCell(CELL* cell) {
 
 void LEGALIZER::DumpSpace(CELL* cell) {
 
+    legal_num++;
     ofstream outfile(out_file, ios::app);
 
     if (!outfile) {
@@ -143,6 +147,7 @@ void LEGALIZER::DumpSpace(CELL* cell) {
 
 void LEGALIZER::DumpMoved(CELL* merge_cell) {
     
+    legal_num++;
     ofstream outfile(out_file, ios::app);
 
     if (!outfile) {
@@ -151,12 +156,18 @@ void LEGALIZER::DumpMoved(CELL* merge_cell) {
     }
 
     outfile << fixed << merge_cell->LEFT() << " " << merge_cell->DOWN() << endl;
-
+    
     outfile << PR.CellMem.size() << endl;
 
-    for(auto cptr : PR.CellMem) {
-        CELL* cell = cptr.F;
-        outfile << cell->GetName() << " " << cell->LEFT() << " " << cell->DOWN() << endl;
+    // for (auto& c : PR.CellMem) {
+    //     CELL* cell = c.F;
+    //     outfile << cell->GetName() << " " << cell->LEFT() << " " << cell->DOWN() << endl;
+    // }
+    if(PR.CellMem.size() > 0) {
+        for(auto mem : PR.CellMem) {
+            CELL* cell = mem.c;
+            outfile << cell->GetName() << " " << cell->LEFT() << " " << cell->DOWN() << endl;
+        }
     }
 
 }

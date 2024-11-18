@@ -14,15 +14,6 @@ int PLACEROW::GetTrack(CELL* cell) {
     return cell->GetH() / height;
 }
 
-bool PLACEROW::H_overlap(CELL* c1, CELL* c2) {
-    return c1->LEFT() < c2->RIGHT() && c1->RIGHT() > c2->LEFT();
-}
-
-bool PLACEROW::V_overlap(CELL* c1, CELL* c2) {
-    return c1->DOWN() < c2->TOP() && c1->TOP() > c2->DOWN();
-}
-
-
 bool PLACEROW::Overlap(CELL* c1, CELL* c2) {
     bool H_overlap = c1->LEFT() < c2->RIGHT() && c1->RIGHT() > c2->LEFT();
     bool V_overlap = c1->DOWN() < c2->TOP() && c1->TOP() > c2->DOWN();
@@ -47,6 +38,7 @@ bool PLACEROW::Legal(CELL* cell) {
     // check overlap
     double y = cell->DOWN();
     while(y < cell->TOP() && y <= TOP()) {
+
         int row = GetRow(y);
 
         Rptr ub = RowSet(row)->lower_bound(cell);
@@ -56,18 +48,17 @@ bool PLACEROW::Legal(CELL* cell) {
         CELL* lb_cell = *lb;
         
         // Check if an upper bound & lower bound
-        if(!lb_cell->pseudo && Overlap(cell, lb_cell)) return false;
-        if(!ub_cell->pseudo && Overlap(cell, ub_cell)) return false;
+        if(Overlap(cell, lb_cell)) return false;
+        if(Overlap(cell, ub_cell)) return false;
 
         y += height;
     }
-
+    
     return true;
 
 }
 
 bool PLACEROW::SRLegal(CELL* cell) {
-
     // fix cell y if not on site
     if((double)((cell->DOWN() - ycoor) / height) != (int)((cell->DOWN() - ycoor) / height) ) {
         cout << "Tweak y" << endl;
@@ -91,8 +82,6 @@ bool PLACEROW::SRLegal(CELL* cell) {
 
         CELL* ub_cell = *ub;
         CELL* lb_cell = *lb;
-
-        // cout << ub_cell->GetName() << " " << lb_cell->GetName() << endl;
 
         bool ub_sr = (ub_cell->Fix() || ub_cell->merge);
         bool lb_sr = (lb_cell->Fix() || lb_cell->merge);
@@ -127,11 +116,12 @@ void PLACEROW::PrintPR() {
 }
 
 void PLACEROW::Insert(CELL* cell) {
-    // if(!Legal(cell)) {
-    //     cout << cell->GetName() << " insert Not Legal" << endl;
-    // }
+    if(!Legal(cell)) {
+        cout << cell->GetName() << " insert Not Legal" << endl;
+    }
     double y = cell->DOWN();
     while(y < cell->TOP() && y <= TOP()) {
+
         int row = GetRow(y);
         RowSet(row)->insert(cell);
         y += height;
@@ -143,12 +133,13 @@ void PLACEROW::Remove(CELL* cell) {
         cout << "Cell fixed, can't remove" << endl;
         return;
     }
-    double y = cell->DOWN();
-    while(y < cell->TOP() && y <= TOP()) {
-        int row = GetRow(y);
+
+    int start_row = GetRow(cell->DOWN());
+    int end_row   = min( (int)ceil(cell->GetH() / height) + start_row - 1, row_num - 1);
+
+    for(int row = start_row; row <= end_row; row++) {
+        if(RowSet(row)->find(cell) == RowSet(row)->end()) cout << "no cell " << cell->GetName() << endl;
         RowSet(row)->erase(cell);
-        // space[row] += cell->GetW();
-        y += height;
     }
 }
 
@@ -164,3 +155,4 @@ Rptr PLACEROW::Lptr(int row, CELL* cell) {
     Rptr ub = RowSet(row)->lower_bound(cell);
     return prev(ub);
 }
+

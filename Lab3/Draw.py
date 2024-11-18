@@ -45,16 +45,17 @@ def plot_placement(die_lower_x, die_lower_y, die_upper_x, die_upper_y, cells, pn
     for (lowerleft_x, lowerleft_y, width, height, fix, merge) in cells:
         if fix == 1:
             edge_color = 'red'
+            
         elif merge == 1:
             edge_color = 'green'
         else:
             edge_color = 'blue'
-        cell_rect = patches.Rectangle((lowerleft_x, lowerleft_y), width, height, facecolor='white')
+        cell_rect = patches.Rectangle((lowerleft_x, lowerleft_y), width, height, facecolor='none')
         cell_patches.append(cell_rect)
         edge_colors.append(edge_color)
     
     # Add all cells to the plot as a PatchCollection with custom edge colors
-    cell_collection = PatchCollection(cell_patches, facecolor='white', edgecolor=edge_colors, linewidths=0.5, alpha=1)
+    cell_collection = PatchCollection(cell_patches, facecolor='white', edgecolor=edge_colors, linewidths=0.2, alpha=1)
     ax.add_collection(cell_collection)
     
     # Set the plot limits and aspect ratio

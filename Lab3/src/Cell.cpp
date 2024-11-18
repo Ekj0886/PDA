@@ -13,6 +13,8 @@ CELL::CELL(string cellname, double X, double Y, double width, double height, boo
     name = cellname;
     x = X;
     y = Y;
+    xo = X;
+    yo = Y;
     w = width;
     h = height;
     fix = Fix;
@@ -27,3 +29,6 @@ void CELL::SetXY(double X, double Y) {
     y = Y;
 }
 
+double CELL::DIFF() {
+    return abs(x - xo) + abs(y - yo);
+}

@@ -17,10 +17,12 @@ public:
     int site_num;
     double height;
     double xcoor, ycoor;
+    double origin_x, origin_y;
     
     vector<Set*> placement_row;
     vector<double> space;
-    vector<double> Xseg; // start point of segment
+    
+    multiset<PT, CompareByDis> Search; 
 
     // operator overwrite
     Set& operator[](size_t index) {
@@ -35,6 +37,7 @@ public:
     bool SingleVacant(CELL*);
     bool DumbFill(CELL*);
     bool FindSRVacant(CELL*);
+    bool FastVacant(CELL*);
     bool Legalize(CELL*);
 
 
@@ -43,45 +46,11 @@ public:
     double distance;
     double moved;
     deque<CELL*> overlap;
-    unordered_map<CELL*, pair<double, double>> CellMem; // memorize coor of cell and moved cell
+    // unordered_map<CELL*, pair<double, double>> CellMem;
+    vector<Mem> CellMem; // memorize coor of cell and moved cell
+    set<CELL*> overlap_check;
+
     
-public:
-    // function for Tetris (PR_tetris.cpp)
-    CELL* EMPTY = new CELL("Empty", 0, 0, 0, 0, 1);
-    double UB, LB;   // upper & lower bound for moving cell range
-    int UR, LR;
-    vector<double> x; // Row x coor indicator
-    vector<CELL*> PTR; // Row's iterator
-    deque<Rptr> Qx;
-
-    void SetBound(CELL*);
-    bool H_overlap(CELL*, CELL*);
-    bool V_overlap(CELL*, CELL*);
-    bool Overlap(CELL*, CELL*);
-    bool isBlk(CELL*);
-    void PrintX();
-    void PrintPTR();
-    void PrintCellMem();
-    void DumpMem();
-    void Restore();
-    bool CheckPTR();
-
-    // push right function
-    bool InitR(CELL*);
-    void UpdateRX(CELL*);
-    bool FindR(CELL*);
-    double CellRX(CELL*); // return maximum x value within cell range
-    bool PushRight();
-
-    // push left function
-    bool InitL(CELL*);
-    void UpdateLX(CELL*);
-    bool FindL(CELL*);
-    double CellLX(CELL*); // return minimum x value within cell range
-    bool PushLeft();
-
-
-
 public:
     // helper function (PR_util.cpp)
     Set* RowSet(int row) { return placement_row[row]; }
@@ -95,12 +64,45 @@ public:
     double RIGHT() { return xcoor + site_num - 1; }
     void PrintRow(int row);
     void PrintPR();
+    bool Overlap(CELL*, CELL*);
+    void Restore();
     Rptr Uptr(int row, CELL* cell);
     Rptr Lptr(int row, CELL* cell);
 
     
-
     
+// public:
+    // function for Tetris (PR_tetris.cpp)
+    // CELL* EMPTY = new CELL("Empty", 0, 0, 0, 0, 1);
+    // double UB, LB;   // upper & lower bound for moving cell range
+    // int UR, LR;
+    // vector<double> x; // Row x coor indicator
+    // vector<CELL*> PTR; // Row's iterator
+    // deque<Rptr> Qx;
+
+    // void SetBound(CELL*);
+    // bool H_overlap(CELL*, CELL*);
+    // bool V_overlap(CELL*, CELL*);
+    // bool isBlk(CELL*);
+    // void PrintX();
+    // void PrintPTR();
+    // void PrintCellMem();
+    // void DumpMem();
+    // bool CheckPTR();
+
+    // // push right function
+    // bool InitR(CELL*);
+    // void UpdateRX(CELL*);
+    // bool FindR(CELL*);
+    // double CellRX(CELL*); // return maximum x value within cell range
+    // bool PushRight();
+
+    // // push left function
+    // bool InitL(CELL*);
+    // void UpdateLX(CELL*);
+    // bool FindL(CELL*);
+    // double CellLX(CELL*); // return minimum x value within cell range
+    // bool PushLeft();
 
     // WINDOW SetWindow(CELL*);
     // void FindSegment(WINDOW W);

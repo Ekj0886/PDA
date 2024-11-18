@@ -12,6 +12,25 @@ struct CompareByX {
     }
 };
 
+struct PT {
+    double x, y;
+    double dis; 
+    PT(double X, double Y) : x(X), y(Y) {}
+};
+
+struct Mem {
+    CELL* c;
+    double xo, yo;
+    Mem(CELL* cell, double x, double y) : c(cell), xo(x), yo(y) {}
+};
+
+struct CompareByDis {
+    bool operator()(const PT a, const PT b) const {
+        return a.dis < b.dis;
+    }
+};
+
+
 using Set = set<CELL*, CompareByX>;
 using RowIterator = std::optional<std::set<CELL*, CompareByX>::iterator>;
 using Rptr = std::set<CELL*, CompareByX>::iterator;
@@ -20,6 +39,7 @@ struct DIE {
     double lowerX, lowerY;
     double upperX, upperY;
 };
+
 
 class WINDOW {
 

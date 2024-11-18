@@ -12,14 +12,15 @@ class CELL {
 private:
     string name;
     double w, h;
-    double x, y;
     bool   fix;  // 0 for not fix, 1 for fix
+    double x, y;
     
 public:
     CELL();
     CELL(string, double, double, double, double, bool);
     ~CELL();
 
+    double xo, yo;
     bool merge, pseudo;
 
     // setup function
@@ -34,6 +35,7 @@ public:
     double RIGHT() const { return x + GetW(); }
     double TOP() const { return y + GetH(); }
     bool   Fix() const { return fix; }
+    double DIFF();
     
 };
 
