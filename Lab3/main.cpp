@@ -30,14 +30,14 @@ int main(int argc, char *argv[]) {
     LGR.parse(input_lg, output_lg);
     LGR.PlaceCell();
 
-    LGR.DumpLayout("Layout/img_" + in_image);
+    // LGR.DumpLayout("Layout/img_" + in_image);
 
     LGR.RunOpt(input_opt);
 
     clock.EndTimer();
     cout << "Runtime: " << clock.Duration() << endl;
 
-    LGR.DumpLayout("Layout/img_" + out_image);
+    // LGR.DumpLayout("Layout/img_" + out_image);
 
     return 0;
 

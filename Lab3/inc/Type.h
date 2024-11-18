@@ -32,7 +32,6 @@ struct CompareByDis {
 
 
 using Set = set<CELL*, CompareByX>;
-using RowIterator = std::optional<std::set<CELL*, CompareByX>::iterator>;
 using Rptr = std::set<CELL*, CompareByX>::iterator;
 
 struct DIE {
