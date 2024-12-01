@@ -61,7 +61,7 @@ public:
 class Gcell {
 
 public:
-    Gcell() {};
+    Gcell() {}
     double m1_cost, m2_cost;
     int left_cap, down_cap;
     Gcell* L;
@@ -84,12 +84,14 @@ struct Net {
     int snk_x, snk_y;
 };
 
+// // Comparator for the priority queue
 struct CompareByCost {
     bool operator()(const Gcell* a, const Gcell* b) const {
-        return a->cost < b->cost;
+        return a->cost > b->cost; 
     }
 };
 
-using Set = multiset<Gcell*, CompareByCost>;
+// Define Set as a priority queue
+using PriorityQ = priority_queue<Gcell*, vector<Gcell*>, CompareByCost>;
 
 #endif

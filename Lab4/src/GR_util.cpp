@@ -15,23 +15,23 @@ Gcell* GR::GetCell(int x, int y) {
     return Grid[i][j];
 }
 
-double GR::Cost(Gcell* cell) {
-    Gcell* parent = cell->parent;
+double GR::Cost(Gcell* neighbor, Gcell* current) {
+    
     double mcost;
     bool via = false;
-    if(cell->dir == Vertical) mcost = cell->m1_cost;
-    else if(cell->dir == Horizontal) mcost = cell->m2_cost;
-    if(cell->dir != parent->dir) {
+    
+    if(neighbor->dir == Vertical) mcost = neighbor->m1_cost;
+    else                          mcost = neighbor->m2_cost;
+
+    if(neighbor->dir != current->dir) {
         via = true;
-        mcost += (parent->m1_cost + parent->m2_cost) / 2.0;
-        if(cell->dir == Vertical) mcost -= parent->m2_cost;
-        else                      mcost -= parent->m1_cost;
+        mcost += (current->m1_cost + current->m2_cost) / 2.0;
     }
-    return alpha + beta * overflow(cell) + gamma * mcost + delta * via;
+    
+    return alpha + beta * overflow(neighbor) + gamma * mcost + delta * via;
 }
 
 bool GR::overflow(Gcell* child) {
-
     Gcell* parent = child->parent;
 
     if(parent->R == child) return child->left_cap < 0;
@@ -42,5 +42,6 @@ bool GR::overflow(Gcell* child) {
         cout << "Wrong Neighboring Relation" << endl;
         return false;
     }
-
 }
+
+

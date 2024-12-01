@@ -8,9 +8,14 @@ using namespace std;
 
 // functions defined in header file
 
-void GR::Parse(string& input_gmp, string& input_gcl, string& input_cst) {
+void GR::Parse(string& input_gmp, string& input_gcl, string& input_cst, string& output_lg, string& out_image) {
     PARSER Parser(input_gmp, input_gcl, input_cst);
     Parser.Parse(*this);
+    outfile_name = output_lg;
+    outimage_name = "layout/image_" + out_image;
+    ofstream outfile(outfile_name);
+    ofstream outimage(outimage_name);
+
     cout << "== Parse files" << endl;
     cout << "   -- Grid Width : " << grid_w << endl;
     cout << "   -- Grid Height: " << grid_h << endl;
@@ -67,12 +72,13 @@ void GR::SetGrid() {
 
 void GR::DirectRoute() {
 
+    path_list.clear();
     int succeed_num = 0;
     int fail_num    = 0;
 
     for(auto& net : Bump_map) {
 
-        // int id = net.F;
+        int id = net.F;
         Net n = net.S;
 
         Gcell* src = GetCell(n.src_x, n.src_y);
@@ -86,122 +92,218 @@ void GR::DirectRoute() {
         src->parent= src;
         src->dir = Vertical; // start on m1
         
-        open_list.clear();
+        PriorityQ empty;
+        open_list.swap(empty);
+        open_set.clear();
         close_list.clear();
 
         if(A_star(src, snk)) succeed_num++;
         else                 fail_num++;
 
-        TracePath(src, snk);
+        TracePath(id, src, snk);
+        UpdateCap();
+        DumpOutput(id, n, src, snk);
 
     }
 
     cout << "Pass num: " << succeed_num << endl;
     cout << "Fail num: " << fail_num << endl;
+    
+    DumpImage();
+    
 
 }
 
 bool GR::A_star(Gcell* src, Gcell* snk) {
-
-    open_list.insert(src);
+    
+    open_list.push(src);
+    open_set.insert(src);
 
     while(!open_list.empty()) {
+
+        Gcell* current = open_list.top();
+        open_list.pop();
+
+        if (open_set.find(current) == open_set.end()) {
+            continue;
+        }
+
+        // if (open_set.find(current) != open_set.end()) {
+        //     open_set.erase(current);
+        // }
+
+        if (current == snk) {
+            return true; // Path found
+        }
+
+        close_list.insert(current);
         
-        // cout << endl;
-        // cout << "openlist: " << open_list.size() << endl; 
-        // cout << "closelist: " << close_list.size() << endl; 
-
-        Gcell* cell = *open_list.begin();
-        open_list.erase(cell);
-        
-        // cout << "visit new cell " << cell->x << " " << cell->y << endl;
-
-        deque<Gcell*> cell_que;
-
-        // Load cell_que & set direction
-        if(cell->L != pseudo_cell && cell->L != cell->parent) {
-            cell_que.push_back(cell->L);
-        }
-        if(cell->R != pseudo_cell && cell->R != cell->parent) {
-            cell_que.push_back(cell->R);
-        }
-        if(cell->D != pseudo_cell && cell->D != cell->parent) {
-            cell_que.push_back(cell->D);
-        }
-        if(cell->U != pseudo_cell && cell->U != cell->parent) {
-            cell_que.push_back(cell->U);
-        } 
-
-        while(!cell_que.empty()) {
-
-            Gcell* nxt_cell = cell_que.front();
-            Gcell  cell_mem = *nxt_cell;
+        for(Gcell* neighbor : {current->L, current->R, current->D, current->U}) {
             
-            cell_que.pop_front();
+            if(neighbor == pseudo_cell || close_list.count(neighbor)) continue;
 
-            // cout << "nxt_cell " << nxt_cell->x << " " << nxt_cell->y <<  endl;
+            Direction origin_dir = neighbor->dir;
+            Gcell* origin_parent = neighbor->parent;
 
-            cell_mem = *nxt_cell;
-            if(cell->L == nxt_cell || cell->R == nxt_cell) nxt_cell->dir = Horizontal;
-            else                                           nxt_cell->dir = Vertical;
-            nxt_cell->parent = cell;
+            if(current->L == neighbor || current->R == neighbor) neighbor->dir = Horizontal;
+            else                                                 neighbor->dir = Vertical;
 
+            neighbor->parent = current;
 
-            // found sink
-            if(nxt_cell == snk) {
-                close_list.insert(nxt_cell);
-                // cout << "Path Found" << endl;
-                return true;
-            }
-            // successor already in open list
-            else if(open_list.find(nxt_cell) != open_list.end()) {
-                // cout << "   successor inside open list" << endl;
-                if(nxt_cell->cost <= Cost(nxt_cell)) {
-                    nxt_cell->dir    = cell_mem.dir;
-                    nxt_cell->parent = cell_mem.parent;
-                    continue;
-                }
-                else {
-                    open_list.erase(nxt_cell);
-                    nxt_cell->cost = Cost(nxt_cell);
-                    open_list.insert(nxt_cell);
-                    continue;
-                }
-            }
-            // successor already in close list
-            else if(close_list.find(nxt_cell) != close_list.end()) {
-                // cout << "   successor inside close list" << endl;
-                if(nxt_cell->cost <= Cost(nxt_cell)) {
-                    nxt_cell->dir    = cell_mem.dir;
-                    nxt_cell->parent = cell_mem.parent;
-                    continue;
-                }
-                else {
-                    close_list.erase(nxt_cell);
-                    nxt_cell->cost = Cost(nxt_cell);
-                    open_list.insert(nxt_cell);
-                    continue;
-                }
-            }
-            // successor unvisited
-            else {
-                // cout << "   successor unvisited" << endl;
-                nxt_cell->cost = Cost(nxt_cell);
-                open_list.insert(nxt_cell);
+            double tentative_cost = current->cost + Cost(neighbor, current);
+
+            if (open_set.find(neighbor) == open_set.end()) {
+                // New node: Add to open list
+                neighbor->cost = tentative_cost;
+                open_list.push(neighbor);
+                open_set.insert(neighbor);
+            } else if (tentative_cost < neighbor->cost) {
+                // Update node: Use lazy removal
+                neighbor->cost = tentative_cost;
+                open_list.push(neighbor); // Insert updated neighbor
+            } else {
+                // Restore neighbor direction
+                neighbor->dir = origin_dir;
+                neighbor->parent = origin_parent;
             }
 
         }
-        // cout << "close cell " << cell->x << " " << cell->y << endl;
 
-        // push cell into close list
-        close_list.insert(cell);
+    }
 
-    } 
-    
-    // cout << "Fail" << endl;
     return false;
 }
 
-void GR::TracePath(Gcell* src, Gcell* snk) {
+void GR::TracePath(int id, Gcell* src, Gcell* snk) {
+    
+    Gcell* current = snk->parent;
+    Direction last_dir = Vertical;
+    
+    path = new deque<Gcell*>();
+    path->push_front(snk);
 
+    while(current != src) {
+        while(current->dir == last_dir) {
+            current = current->parent;
+            if(current == src) {
+                path->push_front(src);
+                path_list[id] = path;
+                return;
+            }
+        }
+        last_dir = current->dir;
+        path->push_front(current);
+        current = current->parent;
+    }
+    path->push_front(src);
+    path_list[id] = path;
+    return;
+
+}
+
+void GR::UpdateCap() {
+
+    for(unsigned int i = 0; i < path->size() - 1; i++) {
+        
+        Gcell* start = (*path)[i];
+        Gcell* end   = (*path)[i + 1];
+
+        if(start->x < end->x) {
+            // trace right
+            Gcell* c = start;
+            while(c != end) {
+                c = c->R;
+                c->left_cap--;
+            }
+        } else if(start->x > end->x) {
+            // trace left
+            Gcell* c = start;
+            while(c != end) {
+                c->left_cap--;
+                c = c->L;
+            }
+        } else if(start->y < end->y) {
+            // trace up
+            Gcell* c = start;
+            while(c != end) {
+                c = c->U;
+                c->down_cap--;
+            }
+        } else if(start->y > end->y) {
+            // trace down
+            Gcell* c = start;
+            while(c != end) {
+                c->down_cap--;
+                c = c->D;
+            }
+        }
+
+    }
+
+}
+
+void GR::DumpOutput(int id, Net n, Gcell* src, Gcell* snk) {
+    
+    // cout << "== Dump Output" << endl;
+    ofstream outfile;
+    outfile.open(outfile_name, ios::app);
+
+    int x = n.src_x, y = n.src_y;
+    
+    outfile << "n" << id << endl;
+    for(unsigned int i = 0; i < path->size() - 1; i++) {
+
+        Gcell* start = (*path)[i];
+        Gcell* end   = (*path)[i + 1];
+
+        if(i != 0 || (start == src && end->dir == Horizontal)) outfile << "via" << endl;
+
+        if(end->dir == Vertical) {
+            outfile << "M1 " << x << " " << y << " ";
+            y += (end->y - start->y)*cell_h;
+            outfile << x << " " << y << endl;
+        } else {
+            outfile << "M2 " << x << " " << y << " ";
+            x += (end->x - start->x)*cell_w;
+            outfile << x << " " << y << endl;
+        }
+
+        if(end == snk && end->dir == Horizontal) outfile << "via" << endl;
+    }
+
+    
+    
+}
+
+void GR::DumpImage() {
+    cout << "== Dump Image" << endl;
+    ofstream outimage;
+
+    outimage.open(outimage_name, ios::app);
+
+    outimage << RA.x << " " << RA.y << " " << RA.w << " " << RA.h << endl;
+    outimage << chip1.x << " " << chip1.y << " " << chip1.w << " " << chip1.h << endl;
+    outimage << chip2.x << " " << chip2.y << " " << chip2.w << " " << chip2.h << endl;
+    
+    for(auto& net : Bump_map) {
+
+        int id = net.F;
+        Net n = net.S;
+
+        deque<Gcell*>* Path = path_list[id];
+
+        int x = n.src_x, y = n.src_y;
+
+        for(unsigned int i = 0; i < Path->size() - 1; i++) {
+            Gcell* start = (*Path)[i];
+            Gcell* end   = (*Path)[i + 1];
+            
+            outimage << x << " " << y << " ";
+            y += (end->y - start->y)*cell_h;
+            x += (end->x - start->x)*cell_w;
+        }
+        
+        outimage << x << " " << y << endl;
+
+    }
 }

@@ -23,20 +23,29 @@ public: // other member
     int cell_w, cell_h;
     int grid_w, grid_h;
     Gcell* pseudo_cell;
-    Set open_list;
-    set<Gcell*> close_list;
+    PriorityQ open_list;
+    unordered_set<Gcell*> open_set;
+    unordered_set<Gcell*> close_list;
+    unordered_map<int, deque<Gcell*>*> path_list;
+    deque<Gcell*>* path;
+    string outfile_name;
+    string outimage_name;
 
 public: // functions
-    void Parse(string&, string&, string&);
+    void Parse(string&, string&, string&, string&, string&);
     void SetGrid();
     void DirectRoute(); // A* search
     bool A_star(Gcell*, Gcell*);
-    void TracePath(Gcell*, Gcell*);
+    void TracePath(int, Gcell*, Gcell*);
+    void UpdateCap();
+    void DumpOutput(int id, Net n, Gcell* src, Gcell* snk);
+    void DumpImage();
 
 public: // util function
     Gcell* GetCell(int x, int y);
-    double Cost(Gcell* cell);
+    double Cost(Gcell* neighbor, Gcell* current);
     bool overflow(Gcell*);
+
 
 };
 
