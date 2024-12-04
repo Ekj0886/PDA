@@ -61,7 +61,7 @@ void GR::SetGrid() {
 
 void GR::DirectRoute() {
 
-    alpha = pow(alpha, 15) * 11;
+    alpha = pow(alpha, 15) * (alpha*10);
     beta  = pow(beta , 15);
     gamma = pow(gamma, 15);
     delta = pow(delta, 15);
@@ -135,7 +135,6 @@ bool GR::A_star(Gcell* src, Gcell* snk) {
             
             if(neighbor == current->parent || neighbor == pseudo_cell || close_list.count(neighbor)) continue;
 
-
             Direction origin_dir = neighbor->dir;
             Gcell* origin_parent = neighbor->parent;
 
@@ -145,11 +144,7 @@ bool GR::A_star(Gcell* src, Gcell* snk) {
             neighbor->parent = current;
             
             double tentative_cost = current->cost + Cost(neighbor, current);
-            // double p_dis = abs(current->x - snk->x) + abs(current->y - snk->y);
-            // double n_dis = abs(neighbor->x - snk->x) + abs(neighbor->y - snk->y);
-
-            // // tentative_cost = tentative_cost - alpha*p_dis + alpha*n_dis;
-
+    
             if (open_set.find(neighbor) == open_set.end()) {
                 // New node: Add to open list
                 neighbor->cost = tentative_cost;
