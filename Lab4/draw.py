@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import random
 import sys
 
-def draw_route(file_path, output_image, dpi=300):
+def draw_route(file_path, output_image, dpi=300, margin_ratio=0.05):
     with open(file_path, 'r') as f:
         lines = f.readlines()
 
@@ -16,24 +16,26 @@ def draw_route(file_path, output_image, dpi=300):
     for line in lines[3:]:
         nets.append(list(map(int, line.strip().split())))
 
+    # Calculate margin based on the routing area size
+    margin_x = route_area[2] * margin_ratio
+    margin_y = route_area[3] * margin_ratio
+
     # Create the plot
     fig, ax = plt.subplots(figsize=(10, 8))
 
-    # Calculate the center of the route area
-    route_center_x = route_area[0] + route_area[2] / 2
-    route_center_y = route_area[1] + route_area[3] / 2
+    # Set axis limits to include the routing area and margins
+    ax.set_xlim(route_area[0] - margin_x, route_area[0] + route_area[2] + margin_x)
+    ax.set_ylim(route_area[1] - margin_y, route_area[1] + route_area[3] + margin_y)
 
-    # Calculate the plot's center based on the route area to center it
-    plot_width = max(route_area[0] + route_area[2], chip1_area[0] + chip1_area[2], chip2_area[0] + chip2_area[2]) + 10
-    plot_height = max(route_area[1] + route_area[3], chip1_area[1] + chip1_area[3], chip2_area[1] + chip2_area[3]) + 10
-
-    # Set axis limits to center the route area
-    ax.set_xlim(route_center_x - plot_width / 2, route_center_x + plot_width / 2)
-    ax.set_ylim(route_center_y - plot_height / 2, route_center_y + plot_height / 2)
-
-    # Draw route area (outline only)
-    ax.add_patch(plt.Rectangle((route_area[0], route_area[1]), route_area[2], route_area[3],
-                               edgecolor='black', facecolor='none', lw=1))
+     # Draw the routing area with a black outline
+    ax.add_patch(plt.Rectangle(
+        (route_area[0], route_area[1]),  # Bottom-left corner
+        route_area[2],  # Width
+        route_area[3],  # Height
+        edgecolor='black',  # Black border
+        facecolor='none',  # No fill
+        lw=1.5  # Line width
+    ))
 
     # Draw chip1 and chip2 areas with a light blue color (half-transparent)
     chip1_color = (0.5, 0.5, 1, 0.5)  # Light blue with transparency
@@ -72,7 +74,7 @@ def draw_route(file_path, output_image, dpi=300):
     ax.set_aspect('equal', adjustable='box')
 
     # Save the image as PNG with specified DPI for high quality
-    plt.savefig(output_image, format='png', dpi=dpi)
+    plt.savefig(output_image, format='png', dpi=dpi, bbox_inches='tight', pad_inches=0)
     plt.close()
 
 # Command line entry point
