@@ -56,21 +56,15 @@ void GR::SetGrid() {
     for(int j = 0; j < grid_w; j++) {
         Grid[0][j]->down_cap = -1;
     }
-
-    // checker for grid pointer
-    // for(int i = 0; i < grid_h; i++) {
-    //     for(int j = 0; j < grid_w; j++) {
-    //         Gcell* cur = Grid[i][j];
-    //         if(cur->L == nullptr) cout << "L null" << endl;
-    //         if(cur->R == nullptr) cout << "R null" << endl;
-    //         if(cur->D == nullptr) cout << "D null" << endl;
-    //         if(cur->U == nullptr) cout << "U null" << endl;
-    //     }
-    // }
-
+    
 }
 
 void GR::DirectRoute() {
+
+    alpha = pow(alpha, 15) * 11;
+    beta  = pow(beta , 15);
+    gamma = pow(gamma, 15);
+    delta = pow(delta, 15);
 
     path_list.clear();
     int succeed_num = 0;
@@ -99,6 +93,9 @@ void GR::DirectRoute() {
 
         if(A_star(src, snk)) succeed_num++;
         else                 fail_num++;
+        
+        // cout << "== Route net " << id << endl;
+        // cout << "       cost " << snk->cost << endl;
 
         TracePath(id, src, snk);
         UpdateCap();
@@ -128,10 +125,6 @@ bool GR::A_star(Gcell* src, Gcell* snk) {
             continue;
         }
 
-        // if (open_set.find(current) != open_set.end()) {
-        //     open_set.erase(current);
-        // }
-
         if (current == snk) {
             return true; // Path found
         }
@@ -140,7 +133,8 @@ bool GR::A_star(Gcell* src, Gcell* snk) {
         
         for(Gcell* neighbor : {current->L, current->R, current->D, current->U}) {
             
-            if(neighbor == pseudo_cell || close_list.count(neighbor)) continue;
+            if(neighbor == current->parent || neighbor == pseudo_cell || close_list.count(neighbor)) continue;
+
 
             Direction origin_dir = neighbor->dir;
             Gcell* origin_parent = neighbor->parent;
@@ -149,8 +143,12 @@ bool GR::A_star(Gcell* src, Gcell* snk) {
             else                                                 neighbor->dir = Vertical;
 
             neighbor->parent = current;
-
+            
             double tentative_cost = current->cost + Cost(neighbor, current);
+            // double p_dis = abs(current->x - snk->x) + abs(current->y - snk->y);
+            // double n_dis = abs(neighbor->x - snk->x) + abs(neighbor->y - snk->y);
+
+            // // tentative_cost = tentative_cost - alpha*p_dis + alpha*n_dis;
 
             if (open_set.find(neighbor) == open_set.end()) {
                 // New node: Add to open list
@@ -162,7 +160,7 @@ bool GR::A_star(Gcell* src, Gcell* snk) {
                 neighbor->cost = tentative_cost;
                 open_list.push(neighbor); // Insert updated neighbor
             } else {
-                // Restore neighbor direction
+                // Restore neighbor direction & parent
                 neighbor->dir = origin_dir;
                 neighbor->parent = origin_parent;
             }
@@ -177,7 +175,7 @@ bool GR::A_star(Gcell* src, Gcell* snk) {
 void GR::TracePath(int id, Gcell* src, Gcell* snk) {
     
     Gcell* current = snk->parent;
-    Direction last_dir = Vertical;
+    Direction last_dir = snk->dir;
     
     path = new deque<Gcell*>();
     path->push_front(snk);
@@ -207,6 +205,8 @@ void GR::UpdateCap() {
         
         Gcell* start = (*path)[i];
         Gcell* end   = (*path)[i + 1];
+
+        // cout << start->x << " " << start->y << " " << end->x << " " << end->y << endl;
 
         if(start->x < end->x) {
             // trace right
@@ -271,7 +271,7 @@ void GR::DumpOutput(int id, Net n, Gcell* src, Gcell* snk) {
         if(end == snk && end->dir == Horizontal) outfile << "via" << endl;
     }
 
-    
+    outfile << ".end" << endl;
     
 }
 

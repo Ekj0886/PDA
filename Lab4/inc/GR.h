@@ -46,7 +46,6 @@ public: // util function
     double Cost(Gcell* neighbor, Gcell* current);
     bool overflow(Gcell*);
 
-
 };
 
 #endif

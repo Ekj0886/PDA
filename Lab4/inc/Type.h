@@ -61,7 +61,7 @@ public:
 class Gcell {
 
 public:
-    Gcell() {}
+    Gcell() { cost = 0; }
     double m1_cost, m2_cost;
     int left_cap, down_cap;
     Gcell* L;

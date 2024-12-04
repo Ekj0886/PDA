@@ -1,1 +1,0 @@
-./evaluate.exe testcase/testcase0/testcase0.gmp testcase/testcase0/testcase0.gcl testcase/testcase0/testcase0.cst output/out_testcase0.lg

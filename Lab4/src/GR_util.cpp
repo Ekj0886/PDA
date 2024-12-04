@@ -28,20 +28,21 @@ double GR::Cost(Gcell* neighbor, Gcell* current) {
         mcost += (current->m1_cost + current->m2_cost) / 2.0;
     }
     
-    return alpha + beta * overflow(neighbor) + gamma * mcost + delta * via;
+    double gcost = alpha + beta * overflow(neighbor) + gamma * mcost + delta * via;
+
+    return gcost;
+
 }
 
 bool GR::overflow(Gcell* child) {
     Gcell* parent = child->parent;
 
-    if(parent->R == child) return child->left_cap < 0;
-    if(parent->L == child) return parent->left_cap < 0;
-    if(parent->U == child) return child->down_cap < 0;
-    if(parent->D == child) return parent->down_cap < 0;
+    if(parent->R == child) return child->left_cap <= 0;
+    if(parent->L == child) return parent->left_cap <= 0;
+    if(parent->U == child) return child->down_cap <= 0;
+    if(parent->D == child) return parent->down_cap <= 0;
     else {
         cout << "Wrong Neighboring Relation" << endl;
         return false;
     }
 }
-
-
