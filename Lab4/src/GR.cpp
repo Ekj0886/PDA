@@ -61,10 +61,10 @@ void GR::SetGrid() {
 
 void GR::DirectRoute() {
 
-    alpha = pow(alpha, 15) * (alpha*10);
-    beta  = pow(beta , 15);
-    gamma = pow(gamma, 15);
-    delta = pow(delta, 15);
+    alpha = pow(alpha, 14);
+    beta  = pow(beta , 14);
+    gamma = pow(gamma, 14);
+    delta = pow(delta, 14);
 
     path_list.clear();
     int succeed_num = 0;
@@ -106,7 +106,7 @@ void GR::DirectRoute() {
     cout << "Pass num: " << succeed_num << endl;
     cout << "Fail num: " << fail_num << endl;
     
-    DumpImage();
+    // DumpImage();
     
 
 }
@@ -143,7 +143,8 @@ bool GR::A_star(Gcell* src, Gcell* snk) {
 
             neighbor->parent = current;
             
-            double tentative_cost = current->cost + Cost(neighbor, current);
+            double step_cost = Cost(neighbor, current);
+            double tentative_cost = current->cost + step_cost;
     
             if (open_set.find(neighbor) == open_set.end()) {
                 // New node: Add to open list

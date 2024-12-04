@@ -17,26 +17,29 @@ Gcell* GR::GetCell(int x, int y) {
 
 double GR::Cost(Gcell* neighbor, Gcell* current) {
     
-    double mcost;
+    double mcost = 0;
     bool via = false;
-    
-    if(neighbor->dir == Vertical) mcost = neighbor->m1_cost;
-    else                          mcost = neighbor->m2_cost;
-
+    int WL;
+    if(neighbor->dir == Vertical) {
+        mcost = neighbor->m1_cost;
+        WL = cell_h;
+    } else {
+        mcost = neighbor->m2_cost;
+        WL = cell_w;
+    }
     if(neighbor->dir != current->dir) {
         via = true;
         mcost += (current->m1_cost + current->m2_cost) / 2.0;
+        // if(current->dir == Vertical) mcost -= current->m1_cost;
+        // else                         mcost -= current->m2_cost;
     }
     
-    double gcost = alpha + beta * overflow(neighbor) + gamma * mcost + delta * via;
-
-    return gcost;
+    return alpha * WL + beta * overflow(neighbor) + gamma * mcost + delta * via;
 
 }
 
 bool GR::overflow(Gcell* child) {
     Gcell* parent = child->parent;
-
     if(parent->R == child) return child->left_cap <= 0;
     if(parent->L == child) return parent->left_cap <= 0;
     if(parent->U == child) return child->down_cap <= 0;
