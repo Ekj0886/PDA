@@ -63,8 +63,8 @@ def draw_route(file_path, output_image, dpi=300, margin_ratio=0.05):
             ax.plot([x1, x2], [y1, y2], color=color, lw=1)
 
         # Plot the source and sink points
-        ax.scatter(src_x, src_y, color=color, s=10, zorder=5)  # Source point
-        ax.scatter(snk_x, snk_y, color=color, s=10, zorder=5)  # Sink point
+        ax.scatter(src_x, src_y, color=color, s=5, zorder=5)  # Source point
+        ax.scatter(snk_x, snk_y, color=color, s=5, zorder=5)  # Sink point
 
     # Remove axis labels and ticks
     ax.set_xticks([])
