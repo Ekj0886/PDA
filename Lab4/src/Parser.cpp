@@ -125,7 +125,10 @@ void PARSER::Load_CST(GR& gr) {
     file_cst >> __;
     for(int i = 0; i < gr.grid_h; i++) {
         for(int j = 0; j < gr.grid_w; j++) {
-            file_cst >> gr.Grid[i][j]->m1_cost;
+            double cost;
+            file_cst >> cost;
+            gr.Grid[i][j]->m1_cost = cost;;
+            if(gr.Half_max_cost < cost) gr.Half_max_cost = cost;
         }
     }
     
@@ -133,8 +136,13 @@ void PARSER::Load_CST(GR& gr) {
     file_cst >> __;
     for(int i = 0; i < gr.grid_h; i++) {
         for(int j = 0; j < gr.grid_w; j++) {
-            file_cst >> gr.Grid[i][j]->m2_cost;
+            double cost;
+            file_cst >> cost;
+            gr.Grid[i][j]->m2_cost = cost;
+            if(gr.Half_max_cost < cost) gr.Half_max_cost = cost;
         }
     } 
+
+    gr.Half_max_cost /= 2.0;
 
 }

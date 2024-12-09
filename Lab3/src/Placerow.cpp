@@ -200,7 +200,7 @@ bool PLACEROW::Legalize(CELL* cell) {
         double xo = c->LEFT();
         double yo = c->DOWN();
         
-        if(distance > (Die.upperX - Die.lowerX) / 5) {
+        if(distance > (Die.upperX - Die.lowerX) / 10) {
             Remove(cell);
             Restore();
             return false;

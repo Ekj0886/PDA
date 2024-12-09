@@ -22,6 +22,7 @@ public: // main structure member
 public: // other member
     int cell_w, cell_h;
     int grid_w, grid_h;
+    double Half_max_cost;
     Gcell* pseudo_cell;
     PriorityQ open_list;
     unordered_set<Gcell*> open_set;
@@ -32,6 +33,7 @@ public: // other member
     string outimage_name;
 
 public: // functions
+    GR() { Half_max_cost = 0; }
     void Parse(string&, string&, string&, string&, string&);
     void SetGrid();
     void DirectRoute(); // A* search

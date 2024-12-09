@@ -61,11 +61,6 @@ void GR::SetGrid() {
 
 void GR::DirectRoute() {
 
-    alpha = pow(alpha, 14);
-    beta  = pow(beta , 14);
-    gamma = pow(gamma, 14);
-    delta = pow(delta, 14);
-
     path_list.clear();
     int succeed_num = 0;
     int fail_num    = 0;
@@ -106,7 +101,7 @@ void GR::DirectRoute() {
     cout << "Pass num: " << succeed_num << endl;
     cout << "Fail num: " << fail_num << endl;
     
-    // DumpImage();
+    DumpImage();
     
 
 }
