@@ -20,6 +20,7 @@ double GR::Cost(Gcell* neighbor, Gcell* current) {
     double mcost = 0;
     bool via = false;
     int WL;
+    
     if(neighbor->dir == Vertical) {
         mcost = neighbor->m1_cost;
         WL = cell_h;
@@ -27,7 +28,7 @@ double GR::Cost(Gcell* neighbor, Gcell* current) {
         mcost = neighbor->m2_cost;
         WL = cell_w;
     }
-    
+
     if(neighbor->dir != current->dir) {
         via = true;
         mcost += (current->m1_cost + current->m2_cost) / 2.0;
@@ -35,7 +36,7 @@ double GR::Cost(Gcell* neighbor, Gcell* current) {
         else                         mcost -= current->m2_cost;
     }
     
-    return alpha * WL + beta * overflow(neighbor) * Half_max_cost + gamma * mcost + delta * via;
+    return alpha * WL + beta * overflow(neighbor) + gamma * mcost + delta * via;
 
 }
 

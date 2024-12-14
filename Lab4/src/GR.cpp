@@ -65,6 +65,8 @@ void GR::DirectRoute() {
     int succeed_num = 0;
     int fail_num    = 0;
 
+    beta *= Half_max_cost;
+
     for(auto& net : Bump_map) {
 
         int id = net.F;
@@ -101,7 +103,7 @@ void GR::DirectRoute() {
     cout << "Pass num: " << succeed_num << endl;
     cout << "Fail num: " << fail_num << endl;
     
-    DumpImage();
+    // DumpImage();
     
 
 }
