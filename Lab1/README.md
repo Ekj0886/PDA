@@ -11,7 +11,7 @@ immediately to its right or left and every space tile must be as wide as possibl
 
 
 ## Result
-> Implement with C++ / Visulaization with Python
+* Implement with C++ / Visulaization with Python
 <table>
   <tr>
     <td><img src="drawing/output0.txt.png" alt="Image 1" width="6020"></td>
