@@ -1,1 +1,1 @@
-python3 draw_block_layout.py layout/output/outputN4.txt drawing/output/outputN4.txt.png
+python3 draw_block_layout.py layout/outputN4.txt drawing/outputN4.txt.png

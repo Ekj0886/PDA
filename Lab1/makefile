@@ -26,15 +26,15 @@ $(OBJDIR):
 
 # Rule to build the target executable
 $(TARGET): $(OBJS) | $(OBJDIR)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $(OBJS) -O3 -o $(TARGET)
 
 # Rule to compile object files from source files
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
-	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
+	$(CXX) $(CXXFLAGS) -MMD -c $< -O3 -o $@
 
 # Rule to compile the main file
 $(OBJDIR)/main.o: main.cpp | $(OBJDIR)
-	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
+	$(CXX) $(CXXFLAGS) -MMD -c $< -O3 -o $@
 
 # Include dependency files
 -include $(DEPS)
